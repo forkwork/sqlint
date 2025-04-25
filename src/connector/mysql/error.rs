@@ -6,10 +6,9 @@ impl From<my::Error> for Error {
         use my::ServerError;
 
         match e {
-            my::Error::Io(my::IoError::Tls(err)) => Error::builder(ErrorKind::TlsError {
-                message: err.to_string(),
-            })
-            .build(),
+            my::Error::Io(my::IoError::Tls(err)) => {
+                Error::builder(ErrorKind::TlsError { message: err.to_string() }).build()
+            }
             my::Error::Io(my::IoError::Io(err)) if err.kind() == std::io::ErrorKind::UnexpectedEof => {
                 Error::builder(ErrorKind::ConnectionClosed).build()
             }
@@ -67,9 +66,7 @@ impl From<my::Error> for Error {
                 builder.build()
             }
             my::Error::Server(ServerError { ref message, code, .. }) if code == 1264 => {
-                let mut builder = Error::builder(ErrorKind::ValueOutOfRange {
-                    message: message.clone(),
-                });
+                let mut builder = Error::builder(ErrorKind::ValueOutOfRange { message: message.clone() });
 
                 builder.set_original_code(code.to_string());
                 builder.set_original_message(message);
@@ -93,11 +90,7 @@ impl From<my::Error> for Error {
                 builder.build()
             }
             my::Error::Server(ServerError { ref message, code, .. }) if code == 1049 => {
-                let db_name = message
-                    .split_whitespace()
-                    .last()
-                    .and_then(|s| s.split('\'').nth(1))
-                    .into();
+                let db_name = message.split_whitespace().last().and_then(|s| s.split('\'').nth(1)).into();
 
                 let kind = ErrorKind::DatabaseDoesNotExist { db_name };
                 let mut builder = Error::builder(kind);
@@ -108,11 +101,7 @@ impl From<my::Error> for Error {
                 builder.build()
             }
             my::Error::Server(ServerError { ref message, code, .. }) if code == 1007 => {
-                let db_name = message
-                    .split_whitespace()
-                    .nth(3)
-                    .and_then(|s| s.split('\'').nth(1))
-                    .into();
+                let db_name = message.split_whitespace().nth(3).and_then(|s| s.split('\'').nth(1)).into();
 
                 let kind = ErrorKind::DatabaseAlreadyExists { db_name };
                 let mut builder = Error::builder(kind);
@@ -123,11 +112,7 @@ impl From<my::Error> for Error {
                 builder.build()
             }
             my::Error::Server(ServerError { ref message, code, .. }) if code == 1044 => {
-                let db_name = message
-                    .split_whitespace()
-                    .last()
-                    .and_then(|s| s.split('\'').nth(1))
-                    .into();
+                let db_name = message.split_whitespace().last().and_then(|s| s.split('\'').nth(1)).into();
 
                 let kind = ErrorKind::DatabaseAccessDenied { db_name };
                 let mut builder = Error::builder(kind);
@@ -170,11 +155,7 @@ impl From<my::Error> for Error {
                 builder.build()
             }
             my::Error::Server(ServerError { ref message, code, .. }) if code == 1054 => {
-                let column = message
-                    .split_whitespace()
-                    .nth(2)
-                    .and_then(|s| s.split('\'').nth(1))
-                    .into();
+                let column = message.split_whitespace().nth(2).and_then(|s| s.split('\'').nth(1)).into();
 
                 let mut builder = Error::builder(ErrorKind::ColumnNotFound { column });
 
@@ -183,11 +164,7 @@ impl From<my::Error> for Error {
 
                 builder.build()
             }
-            my::Error::Server(ServerError {
-                ref message,
-                code,
-                state: _,
-            }) if code == 1406 => {
+            my::Error::Server(ServerError { ref message, code, state: _ }) if code == 1406 => {
                 let column = message.split_whitespace().flat_map(|s| s.split('\'')).nth(6).into();
 
                 let kind = ErrorKind::LengthMismatch { column };
@@ -198,11 +175,7 @@ impl From<my::Error> for Error {
 
                 builder.build()
             }
-            my::Error::Server(ServerError {
-                ref message,
-                code,
-                state: _,
-            }) if code == 1191 => {
+            my::Error::Server(ServerError { ref message, code, state: _ }) if code == 1191 => {
                 let kind = ErrorKind::MissingFullTextSearchIndex;
                 let mut builder = Error::builder(kind);
 
@@ -211,28 +184,15 @@ impl From<my::Error> for Error {
 
                 builder.build()
             }
-            my::Error::Server(ServerError {
-                ref message,
-                code,
-                state: _,
-            }) if code == 1213 => {
+            my::Error::Server(ServerError { ref message, code, state: _ }) if code == 1213 => {
                 let mut builder = Error::builder(ErrorKind::TransactionWriteConflict);
                 builder.set_original_code(format!("{code}"));
                 builder.set_original_message(message);
                 builder.build()
             }
-            my::Error::Server(ServerError {
-                ref message,
-                code,
-                ref state,
-            }) => {
+            my::Error::Server(ServerError { ref message, code, ref state }) => {
                 let kind = ErrorKind::QueryError(
-                    my::Error::Server(ServerError {
-                        message: message.clone(),
-                        code,
-                        state: state.clone(),
-                    })
-                    .into(),
+                    my::Error::Server(ServerError { message: message.clone(), code, state: state.clone() }).into(),
                 );
 
                 let mut builder = Error::builder(kind);

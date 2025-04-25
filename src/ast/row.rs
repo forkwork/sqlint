@@ -15,9 +15,7 @@ impl<'a> Row<'a> {
     }
 
     pub fn with_capacity(capacity: usize) -> Self {
-        Row {
-            values: Vec::with_capacity(capacity),
-        }
+        Row { values: Vec::with_capacity(capacity) }
     }
 
     pub fn pop(&mut self) -> Option<Expression<'a>> {

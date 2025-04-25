@@ -34,10 +34,6 @@ pub trait IntoCommonTableExpression<'a> {
     where
         Self: Into<SelectQuery<'a>>,
     {
-        CommonTableExpression {
-            identifier: identifier.into(),
-            columns: Vec::new(),
-            selection: self.into(),
-        }
+        CommonTableExpression { identifier: identifier.into(), columns: Vec::new(), selection: self.into() }
     }
 }

@@ -78,11 +78,7 @@ impl MysqlUrl {
 
     /// The percent-decoded database password.
     pub fn password(&self) -> Option<Cow<str>> {
-        match self
-            .url
-            .password()
-            .and_then(|pw| percent_decode(pw.as_bytes()).decode_utf8().ok())
-        {
+        match self.url.password().and_then(|pw| percent_decode(pw.as_bytes()).decode_utf8().ok()) {
             Some(password) => Some(password),
             None => self.url.password().map(|s| s.into()),
         }
@@ -168,16 +164,14 @@ impl MysqlUrl {
         for (k, v) in url.query_pairs() {
             match k.as_ref() {
                 "connection_limit" => {
-                    let as_int: usize = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_int: usize =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                     connection_limit = Some(as_int);
                 }
                 "statement_cache_size" => {
-                    statement_cache_size = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    statement_cache_size =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                 }
                 "sslcert" => {
                     use_ssl = true;
@@ -203,21 +197,18 @@ impl MysqlUrl {
                     socket = Some(v.replace(['(', ')'], ""));
                 }
                 "socket_timeout" => {
-                    let as_int = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_int =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                     socket_timeout = Some(Duration::from_secs(as_int));
                 }
                 "prefer_socket" => {
-                    let as_bool = v
-                        .parse::<bool>()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_bool =
+                        v.parse::<bool>().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                     prefer_socket = Some(as_bool)
                 }
                 "connect_timeout" => {
-                    let as_int = v
-                        .parse::<u64>()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_int =
+                        v.parse::<u64>().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                     connect_timeout = match as_int {
                         0 => None,
@@ -225,9 +216,8 @@ impl MysqlUrl {
                     };
                 }
                 "pool_timeout" => {
-                    let as_int = v
-                        .parse::<u64>()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_int =
+                        v.parse::<u64>().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                     pool_timeout = match as_int {
                         0 => None,
@@ -250,9 +240,8 @@ impl MysqlUrl {
                     };
                 }
                 "max_connection_lifetime" => {
-                    let as_int = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_int =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                     if as_int == 0 {
                         max_connection_lifetime = None;
@@ -261,9 +250,8 @@ impl MysqlUrl {
                     }
                 }
                 "max_idle_connection_lifetime" => {
-                    let as_int = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_int =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                     if as_int == 0 {
                         max_idle_connection_lifetime = None;
@@ -428,22 +416,12 @@ impl Mysql {
 
         match cache.get_mut(sql) {
             Some(stmt) => {
-                tracing::trace!(
-                    message = "CACHE HIT!",
-                    query = sql,
-                    capacity = capacity,
-                    stored = stored,
-                );
+                tracing::trace!(message = "CACHE HIT!", query = sql, capacity = capacity, stored = stored,);
 
                 Ok(stmt.clone()) // arc'd
             }
             None => {
-                tracing::trace!(
-                    message = "CACHE MISS!",
-                    query = sql,
-                    capacity = capacity,
-                    stored = stored,
-                );
+                tracing::trace!(message = "CACHE MISS!", query = sql, capacity = capacity, stored = stored,);
 
                 let mut conn = self.conn.lock().await;
                 if cache.capacity() == cache.len() {
@@ -547,9 +525,7 @@ impl Queryable for Mysql {
         let query = r#"SELECT @@GLOBAL.version version"#;
         let rows = super::timeout::socket(self.socket_timeout, self.query_raw(query, &[])).await?;
 
-        let version_string = rows
-            .get(0)
-            .and_then(|row| row.get("version").and_then(|version| version.to_string()));
+        let version_string = rows.get(0).and_then(|row| row.get("version").and_then(|version| version.to_string()));
 
         Ok(version_string)
     }
@@ -563,8 +539,7 @@ impl Queryable for Mysql {
             return Err(Error::builder(ErrorKind::invalid_isolation_level(&isolation_level)).build());
         }
 
-        self.raw_cmd(&format!("SET TRANSACTION ISOLATION LEVEL {isolation_level}"))
-            .await?;
+        self.raw_cmd(&format!("SET TRANSACTION ISOLATION LEVEL {isolation_level}")).await?;
 
         Ok(())
     }

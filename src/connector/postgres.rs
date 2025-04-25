@@ -89,11 +89,7 @@ struct SslAuth {
 
 impl Default for SslAuth {
     fn default() -> Self {
-        Self {
-            certificate: Hidden(None),
-            identity: Hidden(None),
-            ssl_accept_mode: SslAcceptMode::AcceptInvalidCerts,
-        }
+        Self { certificate: Hidden(None), identity: Hidden(None), ssl_accept_mode: SslAcceptMode::AcceptInvalidCerts }
     }
 }
 
@@ -121,10 +117,7 @@ impl SslParams {
 
         if let Some(ref cert_file) = self.certificate_file {
             let cert = fs::read(cert_file).map_err(|err| {
-                Error::builder(ErrorKind::TlsError {
-                    message: format!("cert file not found ({err})"),
-                })
-                .build()
+                Error::builder(ErrorKind::TlsError { message: format!("cert file not found ({err})") }).build()
             })?;
 
             auth.certificate(Certificate::from_pem(&cert)?);
@@ -132,10 +125,7 @@ impl SslParams {
 
         if let Some(ref identity_file) = self.identity_file {
             let db = fs::read(identity_file).map_err(|err| {
-                Error::builder(ErrorKind::TlsError {
-                    message: format!("identity file not found ({err})"),
-                })
-                .build()
+                Error::builder(ErrorKind::TlsError { message: format!("identity file not found ({err})") }).build()
             })?;
             let password = self.identity_password.0.as_deref().unwrap_or("");
             let identity = Identity::from_pkcs12(&db, password)?;
@@ -193,11 +183,7 @@ impl PostgresUrl {
     pub fn new(url: Url) -> Result<Self, Error> {
         let query_params = Self::parse_query_params(&url)?;
 
-        Ok(Self {
-            url,
-            query_params,
-            flavour: PostgresFlavour::Unknown,
-        })
+        Ok(Self { url, query_params, flavour: PostgresFlavour::Unknown })
     }
 
     /// The bare `Url` to the database.
@@ -241,11 +227,7 @@ impl PostgresUrl {
 
     /// The percent-decoded database password.
     pub fn password(&self) -> Cow<str> {
-        match self
-            .url
-            .password()
-            .and_then(|pw| percent_decode(pw.as_bytes()).decode_utf8().ok())
-        {
+        match self.url.password().and_then(|pw| percent_decode(pw.as_bytes()).decode_utf8().ok()) {
             Some(password) => password,
             None => self.url.password().unwrap_or("").into(),
         }
@@ -346,9 +328,8 @@ impl PostgresUrl {
         for (k, v) in url.query_pairs() {
             match k.as_ref() {
                 "pgbouncer" => {
-                    pg_bouncer = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    pg_bouncer =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                 }
                 "sslmode" => {
                     match v.as_ref() {
@@ -370,9 +351,8 @@ impl PostgresUrl {
                     identity_password = Some(v.to_string());
                 }
                 "statement_cache_size" => {
-                    statement_cache_size = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    statement_cache_size =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                 }
                 "sslaccept" => {
                     match v.as_ref() {
@@ -396,24 +376,21 @@ impl PostgresUrl {
                     schema = Some(v.to_string());
                 }
                 "connection_limit" => {
-                    let as_int: usize = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_int: usize =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                     connection_limit = Some(as_int);
                 }
                 "host" => {
                     host = Some(v.to_string());
                 }
                 "socket_timeout" => {
-                    let as_int = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_int =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                     socket_timeout = Some(Duration::from_secs(as_int));
                 }
                 "connect_timeout" => {
-                    let as_int = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_int =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                     if as_int == 0 {
                         connect_timeout = None;
@@ -422,9 +399,8 @@ impl PostgresUrl {
                     }
                 }
                 "pool_timeout" => {
-                    let as_int = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_int =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                     if as_int == 0 {
                         pool_timeout = None;
@@ -433,9 +409,8 @@ impl PostgresUrl {
                     }
                 }
                 "max_connection_lifetime" => {
-                    let as_int = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_int =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                     if as_int == 0 {
                         max_connection_lifetime = None;
@@ -444,9 +419,8 @@ impl PostgresUrl {
                     }
                 }
                 "max_idle_connection_lifetime" => {
-                    let as_int = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    let as_int =
+                        v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                     if as_int == 0 {
                         max_idle_connection_lifetime = None;
@@ -664,22 +638,12 @@ impl PostgreSql {
 
         match cache.get_mut(sql) {
             Some(stmt) => {
-                tracing::trace!(
-                    message = "CACHE HIT!",
-                    query = sql,
-                    capacity = capacity,
-                    stored = stored,
-                );
+                tracing::trace!(message = "CACHE HIT!", query = sql, capacity = capacity, stored = stored,);
 
                 Ok(stmt.clone()) // arc'd
             }
             None => {
-                tracing::trace!(
-                    message = "CACHE MISS!",
-                    query = sql,
-                    capacity = capacity,
-                    stored = stored,
-                );
+                tracing::trace!(message = "CACHE MISS!", query = sql, capacity = capacity, stored = stored,);
 
                 let param_types = conversion::params_to_types(params);
                 let stmt = self.perform_io(self.client.0.prepare_typed(sql, &param_types)).await?;
@@ -774,17 +738,13 @@ impl Queryable for PostgreSql {
             let stmt = self.fetch_cached(sql, &[]).await?;
 
             if stmt.params().len() != params.len() {
-                let kind = ErrorKind::IncorrectNumberOfParameters {
-                    expected: stmt.params().len(),
-                    actual: params.len(),
-                };
+                let kind =
+                    ErrorKind::IncorrectNumberOfParameters { expected: stmt.params().len(), actual: params.len() };
 
                 return Err(Error::builder(kind).build());
             }
 
-            let rows = self
-                .perform_io(self.client.0.query(&stmt, conversion::conv_params(params).as_slice()))
-                .await?;
+            let rows = self.perform_io(self.client.0.query(&stmt, conversion::conv_params(params).as_slice())).await?;
 
             let mut result = ResultSet::new(stmt.to_column_names(), Vec::new());
 
@@ -804,17 +764,13 @@ impl Queryable for PostgreSql {
             let stmt = self.fetch_cached(sql, params).await?;
 
             if stmt.params().len() != params.len() {
-                let kind = ErrorKind::IncorrectNumberOfParameters {
-                    expected: stmt.params().len(),
-                    actual: params.len(),
-                };
+                let kind =
+                    ErrorKind::IncorrectNumberOfParameters { expected: stmt.params().len(), actual: params.len() };
 
                 return Err(Error::builder(kind).build());
             }
 
-            let rows = self
-                .perform_io(self.client.0.query(&stmt, conversion::conv_params(params).as_slice()))
-                .await?;
+            let rows = self.perform_io(self.client.0.query(&stmt, conversion::conv_params(params).as_slice())).await?;
 
             let mut result = ResultSet::new(stmt.to_column_names(), Vec::new());
 
@@ -840,17 +796,14 @@ impl Queryable for PostgreSql {
             let stmt = self.fetch_cached(sql, &[]).await?;
 
             if stmt.params().len() != params.len() {
-                let kind = ErrorKind::IncorrectNumberOfParameters {
-                    expected: stmt.params().len(),
-                    actual: params.len(),
-                };
+                let kind =
+                    ErrorKind::IncorrectNumberOfParameters { expected: stmt.params().len(), actual: params.len() };
 
                 return Err(Error::builder(kind).build());
             }
 
-            let changes = self
-                .perform_io(self.client.0.execute(&stmt, conversion::conv_params(params).as_slice()))
-                .await?;
+            let changes =
+                self.perform_io(self.client.0.execute(&stmt, conversion::conv_params(params).as_slice())).await?;
 
             Ok(changes)
         })
@@ -864,17 +817,14 @@ impl Queryable for PostgreSql {
             let stmt = self.fetch_cached(sql, params).await?;
 
             if stmt.params().len() != params.len() {
-                let kind = ErrorKind::IncorrectNumberOfParameters {
-                    expected: stmt.params().len(),
-                    actual: params.len(),
-                };
+                let kind =
+                    ErrorKind::IncorrectNumberOfParameters { expected: stmt.params().len(), actual: params.len() };
 
                 return Err(Error::builder(kind).build());
             }
 
-            let changes = self
-                .perform_io(self.client.0.execute(&stmt, conversion::conv_params(params).as_slice()))
-                .await?;
+            let changes =
+                self.perform_io(self.client.0.execute(&stmt, conversion::conv_params(params).as_slice())).await?;
 
             Ok(changes)
         })
@@ -893,9 +843,7 @@ impl Queryable for PostgreSql {
         let query = r#"SELECT version()"#;
         let rows = self.query_raw(query, &[]).await?;
 
-        let version_string = rows
-            .get(0)
-            .and_then(|row| row.get("version").and_then(|version| version.to_string()));
+        let version_string = rows.get(0).and_then(|row| row.get("version").and_then(|version| version.to_string()));
 
         Ok(version_string)
     }
@@ -917,8 +865,7 @@ impl Queryable for PostgreSql {
             return Err(Error::builder(ErrorKind::invalid_isolation_level(&isolation_level)).build());
         }
 
-        self.raw_cmd(&format!("SET TRANSACTION ISOLATION LEVEL {isolation_level}"))
-            .await?;
+        self.raw_cmd(&format!("SET TRANSACTION ISOLATION LEVEL {isolation_level}")).await?;
 
         Ok(())
     }
@@ -1420,10 +1367,7 @@ mod tests {
             Err(e) => match e.kind() {
                 ErrorKind::DatabaseDoesNotExist { db_name } => {
                     assert_eq!(Some("3D000"), e.original_code());
-                    assert_eq!(
-                        Some("database \"this_does_not_exist\" does not exist"),
-                        e.original_message()
-                    );
+                    assert_eq!(Some("database \"this_does_not_exist\" does not exist"), e.original_message());
                     assert_eq!(&Name::available("this_does_not_exist"), db_name)
                 }
                 kind => panic!("Expected `DatabaseDoesNotExist`, got {:?}", kind),
@@ -1466,9 +1410,7 @@ mod tests {
         let url = Url::parse(&CONN_STR).unwrap();
         let conn = Sqlint::new(url.as_str()).await.unwrap();
 
-        let res = conn
-            .query_raw("SELECT $1", &[Value::integer(1), Value::integer(2)])
-            .await;
+        let res = conn.query_raw("SELECT $1", &[Value::integer(1), Value::integer(2)]).await;
 
         assert!(res.is_err());
 
@@ -1494,10 +1436,7 @@ mod tests {
         assert_eq!(is_safe_identifier("héllo"), true);
         assert_eq!(is_safe_identifier("héll0$"), true);
         assert_eq!(is_safe_identifier("héll_0$"), true);
-        assert_eq!(
-            is_safe_identifier("disconnect_security_must_honor_connect_scope_one2m"),
-            true
-        );
+        assert_eq!(is_safe_identifier("disconnect_security_must_honor_connect_scope_one2m"), true);
 
         // Not safe
         assert_eq!(is_safe_identifier(""), false);

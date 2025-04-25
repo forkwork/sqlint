@@ -96,11 +96,7 @@ impl<'a> Compare<'a> {
             select: super::SelectQuery<'a>,
             mut selected_columns: Vec<String>,
             level: &mut usize,
-        ) -> (
-            super::Column<'a>,
-            super::Select<'a>,
-            Vec<super::CommonTableExpression<'a>>,
-        ) {
+        ) -> (super::Column<'a>, super::Select<'a>, Vec<super::CommonTableExpression<'a>>) {
             // Get the columns out from the row.
             let mut cols = row.into_columns();
 
@@ -131,9 +127,8 @@ impl<'a> Compare<'a> {
             // Adding to the new select a condition to filter out the rest of
             // the tuple, so if our tuple is `(a, b) IN (SELECT x, y ..)`, this
             // will then turn into `a IN (SELECT x WHERE b = y)`.
-            let inner_select = column_pairs.fold(base_select, |acc, (left_col, right_col)| {
-                acc.and_where(right_col.equals(left_col))
-            });
+            let inner_select =
+                column_pairs.fold(base_select, |acc, (left_col, right_col)| acc.and_where(right_col.equals(left_col)));
 
             // Now we added one cte, so we must increment the count for the
             // possible other expressions.
@@ -235,10 +230,7 @@ impl<'a> From<Compare<'a>> for ConditionTree<'a> {
 
 impl<'a> From<Compare<'a>> for Expression<'a> {
     fn from(cmp: Compare<'a>) -> Self {
-        Expression {
-            kind: ExpressionKind::Compare(cmp),
-            alias: None,
-        }
+        Expression { kind: ExpressionKind::Compare(cmp), alias: None }
     }
 }
 

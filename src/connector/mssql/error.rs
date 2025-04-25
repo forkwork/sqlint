@@ -182,12 +182,7 @@ impl From<tiberius::error::Error> for Error {
                 builder.build()
             }
             tiberius::error::Error::Server(e) if e.code() == 208 => {
-                let table = e
-                    .message()
-                    .split_whitespace()
-                    .nth(3)
-                    .and_then(|s| s.split('\'').nth(1))
-                    .into();
+                let table = e.message().split_whitespace().nth(3).and_then(|s| s.split('\'').nth(1)).into();
 
                 let kind = ErrorKind::TableDoesNotExist { table };
                 let mut builder = Error::builder(kind);
@@ -198,12 +193,7 @@ impl From<tiberius::error::Error> for Error {
                 builder.build()
             }
             tiberius::error::Error::Server(e) if e.code() == 207 => {
-                let column = e
-                    .message()
-                    .split_whitespace()
-                    .nth(3)
-                    .and_then(|s| s.split('\'').nth(1))
-                    .into();
+                let column = e.message().split_whitespace().nth(3).and_then(|s| s.split('\'').nth(1)).into();
 
                 let kind = ErrorKind::ColumnNotFound { column };
                 let mut builder = Error::builder(kind);

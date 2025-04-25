@@ -28,9 +28,7 @@ where
     T: Into<Expression<'a>>,
     V: Into<Vec<T>>,
 {
-    let fun = Coalesce {
-        exprs: exprs.into().into_iter().map(|e| e.into()).collect(),
-    };
+    let fun = Coalesce { exprs: exprs.into().into_iter().map(|e| e.into()).collect() };
 
     fun.into()
 }

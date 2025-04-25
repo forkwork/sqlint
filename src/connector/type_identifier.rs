@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 pub(crate) trait TypeIdentifier {
     fn is_real(&self) -> bool;
     fn is_float(&self) -> bool;

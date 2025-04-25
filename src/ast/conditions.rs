@@ -121,19 +121,13 @@ impl<'a> ConditionTree<'a> {
 
 impl<'a> From<ConditionTree<'a>> for Expression<'a> {
     fn from(ct: ConditionTree<'a>) -> Self {
-        Expression {
-            kind: ExpressionKind::ConditionTree(ct),
-            alias: None,
-        }
+        Expression { kind: ExpressionKind::ConditionTree(ct), alias: None }
     }
 }
 
 impl<'a> From<Select<'a>> for ConditionTree<'a> {
     fn from(sel: Select<'a>) -> Self {
-        let exp = Expression {
-            kind: ExpressionKind::Value(Box::new(sel.into())),
-            alias: None,
-        };
+        let exp = Expression { kind: ExpressionKind::Value(Box::new(sel.into())), alias: None };
 
         ConditionTree::single(exp)
     }

@@ -77,10 +77,7 @@ impl TypeIdentifier for Column<'_> {
     }
 
     fn is_datetime(&self) -> bool {
-        matches!(
-            self.decl_type(),
-            Some("DATETIME") | Some("datetime") | Some("TIMESTAMP") | Some("timestamp")
-        )
+        matches!(self.decl_type(), Some("DATETIME") | Some("datetime") | Some("TIMESTAMP") | Some("timestamp"))
     }
 
     fn is_time(&self) -> bool {
@@ -270,9 +267,9 @@ impl<'a> ToSql for Value<'a> {
                 return Err(RusqlError::ToSqlConversionFailure(Box::new(builder.build())));
             }
             #[cfg(feature = "bigdecimal")]
-            Value::Numeric(d) => d
-                .as_ref()
-                .map(|d| ToSqlOutput::from(d.to_string().parse::<f64>().expect("BigDecimal is not a f64."))),
+            Value::Numeric(d) => {
+                d.as_ref().map(|d| ToSqlOutput::from(d.to_string().parse::<f64>().expect("BigDecimal is not a f64.")))
+            }
             #[cfg(feature = "json")]
             Value::Json(value) => value.as_ref().map(|value| {
                 let stringified = serde_json::to_string(value)
@@ -287,9 +284,9 @@ impl<'a> ToSql for Value<'a> {
             #[cfg(feature = "chrono")]
             Value::DateTime(value) => value.map(|value| ToSqlOutput::from(value.timestamp_millis())),
             #[cfg(feature = "chrono")]
-            Value::Date(date) => date
-                .and_then(|date| date.and_hms_opt(0, 0, 0))
-                .map(|dt| ToSqlOutput::from(dt.timestamp_millis())),
+            Value::Date(date) => {
+                date.and_then(|date| date.and_hms_opt(0, 0, 0)).map(|dt| ToSqlOutput::from(dt.timestamp_millis()))
+            }
             #[cfg(feature = "chrono")]
             Value::Time(time) => time
                 .and_then(|time| chrono::NaiveDate::from_ymd_opt(1970, 1, 1).map(|d| (d, time)))

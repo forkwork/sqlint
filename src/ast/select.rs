@@ -20,10 +20,7 @@ pub struct Select<'a> {
 
 impl<'a> From<Select<'a>> for Expression<'a> {
     fn from(sel: Select<'a>) -> Expression<'a> {
-        Expression {
-            kind: ExpressionKind::Selection(SelectQuery::Select(Box::new(sel))),
-            alias: None,
-        }
+        Expression { kind: ExpressionKind::Selection(SelectQuery::Select(Box::new(sel))), alias: None }
     }
 }
 
@@ -103,10 +100,7 @@ impl<'a> Select<'a> {
     where
         T: Into<Table<'a>>,
     {
-        Select {
-            tables: vec![table.into()],
-            ..Select::default()
-        }
+        Select { tables: vec![table.into()], ..Select::default() }
     }
 
     /// Adds a table to be selected.
@@ -654,10 +648,7 @@ impl<'a> Select<'a> {
             .unwrap_or_else(Vec::new);
 
         if top_level {
-            let clashing_names = self
-                .ctes
-                .iter()
-                .any(|c| ctes.iter().any(|c2| c.identifier == c2.identifier));
+            let clashing_names = self.ctes.iter().any(|c| ctes.iter().any(|c2| c.identifier == c2.identifier));
 
             assert!(!clashing_names);
             self.ctes.extend(ctes);

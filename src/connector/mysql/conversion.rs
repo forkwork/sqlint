@@ -165,10 +165,8 @@ impl TypeIdentifier for my::Column {
     fn is_text(&self) -> bool {
         use ColumnType::*;
 
-        let is_defined_text = matches!(
-            self.column_type(),
-            MYSQL_TYPE_VARCHAR | MYSQL_TYPE_VAR_STRING | MYSQL_TYPE_STRING
-        );
+        let is_defined_text =
+            matches!(self.column_type(), MYSQL_TYPE_VARCHAR | MYSQL_TYPE_VAR_STRING | MYSQL_TYPE_STRING);
 
         let is_bytes_but_text = matches!(
             self.column_type(),
@@ -339,10 +337,7 @@ impl TakeRow for my::Row {
                 },
                 #[cfg(not(feature = "chrono"))]
                 typ => {
-                    let msg = format!(
-                        "Value of type {:?} is not supported with the current configuration",
-                        typ
-                    );
+                    let msg = format!("Value of type {:?} is not supported with the current configuration", typ);
 
                     let kind = ErrorKind::conversion(msg);
                     Err(Error::builder(kind).build())?

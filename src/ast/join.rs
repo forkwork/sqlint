@@ -10,10 +10,7 @@ pub struct JoinData<'a> {
 impl<'a> JoinData<'a> {
     /// Implement a join with no conditions.
     pub fn all_from(table: impl Into<Table<'a>>) -> Self {
-        Self {
-            table: table.into(),
-            conditions: ConditionTree::NoCondition,
-        }
+        Self { table: table.into(), conditions: ConditionTree::NoCondition }
     }
 }
 
@@ -70,10 +67,7 @@ where
     where
         T: Into<ConditionTree<'a>>,
     {
-        JoinData {
-            table: self.into(),
-            conditions: conditions.into(),
-        }
+        JoinData { table: self.into(), conditions: conditions.into() }
     }
 }
 
@@ -87,9 +81,6 @@ impl<'a> Joinable<'a> for JoinData<'a> {
             cond => cond.and(conditions.into()),
         };
 
-        JoinData {
-            table: self.table,
-            conditions,
-        }
+        JoinData { table: self.table, conditions }
     }
 }

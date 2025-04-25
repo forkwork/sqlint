@@ -10,9 +10,7 @@ async fn upsert_on_primary_key(api: &mut dyn TestApi) -> crate::Result<()> {
 
     let insert: Insert = Insert::single_into(&table).value("id", 1).value("x", 1).into();
 
-    let query: Query = insert
-        .on_conflict(OnConflict::Update(update, Vec::from(["id".into()])))
-        .into();
+    let query: Query = insert.on_conflict(OnConflict::Update(update, Vec::from(["id".into()]))).into();
     // Insert
     let count = api.conn().execute(query.clone()).await?;
 
@@ -42,15 +40,9 @@ async fn upsert_on_unique_field(api: &mut dyn TestApi) -> crate::Result<()> {
 
     let update = Update::table(&table).set("y", 2).so_that((&table, "id").equals(1));
 
-    let insert: Insert = Insert::single_into(&table)
-        .value("id", 1)
-        .value("x", 1)
-        .value("y", 1)
-        .into();
+    let insert: Insert = Insert::single_into(&table).value("id", 1).value("x", 1).value("y", 1).into();
 
-    let query: Query = insert
-        .on_conflict(OnConflict::Update(update, Vec::from(["x".into()])))
-        .into();
+    let query: Query = insert.on_conflict(OnConflict::Update(update, Vec::from(["x".into()]))).into();
     // Insert
     let count = api.conn().execute(query.clone()).await?;
 
@@ -78,21 +70,13 @@ async fn upsert_on_unique_field(api: &mut dyn TestApi) -> crate::Result<()> {
 
 #[test_each_connector(tags("postgresql", "sqlite"))]
 async fn upsert_on_multiple_unique_fields(api: &mut dyn TestApi) -> crate::Result<()> {
-    let table = api
-        .create_temp_table("id int primary key, x int, y int, CONSTRAINT ux_x_y UNIQUE (x, y)")
-        .await?;
+    let table = api.create_temp_table("id int primary key, x int, y int, CONSTRAINT ux_x_y UNIQUE (x, y)").await?;
 
     let update = Update::table(&table).set("y", 2).so_that((&table, "id").equals(1));
 
-    let insert: Insert = Insert::single_into(&table)
-        .value("id", 1)
-        .value("x", 1)
-        .value("y", 1)
-        .into();
+    let insert: Insert = Insert::single_into(&table).value("id", 1).value("x", 1).value("y", 1).into();
 
-    let query: Query = insert
-        .on_conflict(OnConflict::Update(update, Vec::from(["x".into(), "y".into()])))
-        .into();
+    let query: Query = insert.on_conflict(OnConflict::Update(update, Vec::from(["x".into(), "y".into()]))).into();
 
     // Insert
     let count = api.conn().execute(query.clone()).await?;

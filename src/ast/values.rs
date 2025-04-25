@@ -175,9 +175,7 @@ impl<'a> From<Value<'a>> for serde_json::Value {
             Value::Boolean(b) => b.map(serde_json::Value::Bool),
             Value::Char(c) => c.map(|c| {
                 let bytes = [c as u8];
-                let s = std::str::from_utf8(&bytes)
-                    .expect("interpret byte as UTF-8")
-                    .to_string();
+                let s = std::str::from_utf8(&bytes).expect("interpret byte as UTF-8").to_string();
                 serde_json::Value::String(s)
             }),
             Value::Xml(cow) => cow.map(|cow| serde_json::Value::String(cow.into_owned())),
@@ -704,9 +702,7 @@ impl<'a> TryFrom<Value<'a>> for i64 {
     type Error = Error;
 
     fn try_from(value: Value<'a>) -> Result<i64, Self::Error> {
-        value
-            .as_i64()
-            .ok_or_else(|| Error::builder(ErrorKind::conversion("Not an i64")).build())
+        value.as_i64().ok_or_else(|| Error::builder(ErrorKind::conversion("Not an i64")).build())
     }
 }
 
@@ -714,9 +710,7 @@ impl<'a> TryFrom<Value<'a>> for i32 {
     type Error = Error;
 
     fn try_from(value: Value<'a>) -> Result<i32, Self::Error> {
-        value
-            .as_i32()
-            .ok_or_else(|| Error::builder(ErrorKind::conversion("Not an i32")).build())
+        value.as_i32().ok_or_else(|| Error::builder(ErrorKind::conversion("Not an i32")).build())
     }
 }
 
@@ -725,9 +719,7 @@ impl<'a> TryFrom<Value<'a>> for BigDecimal {
     type Error = Error;
 
     fn try_from(value: Value<'a>) -> Result<BigDecimal, Self::Error> {
-        value
-            .into_numeric()
-            .ok_or_else(|| Error::builder(ErrorKind::conversion("Not a decimal")).build())
+        value.into_numeric().ok_or_else(|| Error::builder(ErrorKind::conversion("Not a decimal")).build())
     }
 }
 
@@ -735,9 +727,7 @@ impl<'a> TryFrom<Value<'a>> for f64 {
     type Error = Error;
 
     fn try_from(value: Value<'a>) -> Result<f64, Self::Error> {
-        value
-            .as_f64()
-            .ok_or_else(|| Error::builder(ErrorKind::conversion("Not a f64")).build())
+        value.as_f64().ok_or_else(|| Error::builder(ErrorKind::conversion("Not a f64")).build())
     }
 }
 
@@ -745,9 +735,7 @@ impl<'a> TryFrom<Value<'a>> for String {
     type Error = Error;
 
     fn try_from(value: Value<'a>) -> Result<String, Self::Error> {
-        value
-            .into_string()
-            .ok_or_else(|| Error::builder(ErrorKind::conversion("Not a string")).build())
+        value.into_string().ok_or_else(|| Error::builder(ErrorKind::conversion("Not a string")).build())
     }
 }
 
@@ -755,9 +743,7 @@ impl<'a> TryFrom<Value<'a>> for bool {
     type Error = Error;
 
     fn try_from(value: Value<'a>) -> Result<bool, Self::Error> {
-        value
-            .as_bool()
-            .ok_or_else(|| Error::builder(ErrorKind::conversion("Not a bool")).build())
+        value.as_bool().ok_or_else(|| Error::builder(ErrorKind::conversion("Not a bool")).build())
     }
 }
 
@@ -767,9 +753,7 @@ impl<'a> TryFrom<Value<'a>> for DateTime<Utc> {
     type Error = Error;
 
     fn try_from(value: Value<'a>) -> Result<DateTime<Utc>, Self::Error> {
-        value
-            .as_datetime()
-            .ok_or_else(|| Error::builder(ErrorKind::conversion("Not a datetime")).build())
+        value.as_datetime().ok_or_else(|| Error::builder(ErrorKind::conversion("Not a datetime")).build())
     }
 }
 
@@ -858,9 +842,7 @@ impl<'a> Values<'a> {
 
     /// Create a new in-memory set of values with an allocated capacity.
     pub fn with_capacity(capacity: usize) -> Self {
-        Self {
-            rows: Vec::with_capacity(capacity),
-        }
+        Self { rows: Vec::with_capacity(capacity) }
     }
 
     /// Add value to the temporary table.
@@ -908,9 +890,7 @@ where
     R: Into<Row<'a>>,
 {
     fn from(rows: I) -> Self {
-        Self {
-            rows: rows.map(|r| r.into()).collect(),
-        }
+        Self { rows: rows.map(|r| r.into()).collect() }
     }
 }
 

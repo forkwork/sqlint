@@ -68,10 +68,7 @@ impl<'a> Column<'a> {
     /// Create a bare version of the column, stripping out all other information
     /// other than the name.
     pub(crate) fn into_bare(self) -> Self {
-        Self {
-            name: self.name,
-            ..Default::default()
-        }
+        Self { name: self.name, ..Default::default() }
     }
 
     /// Sets the default value for the column.
@@ -92,19 +89,13 @@ impl<'a> Column<'a> {
     /// True when the default value is set and automatically generated in the
     /// database.
     pub fn default_autogen(&self) -> bool {
-        self.default
-            .as_ref()
-            .map(|d| d == &DefaultValue::Generated)
-            .unwrap_or(false)
+        self.default.as_ref().map(|d| d == &DefaultValue::Generated).unwrap_or(false)
     }
 }
 
 impl<'a> From<Column<'a>> for Expression<'a> {
     fn from(col: Column<'a>) -> Self {
-        Expression {
-            kind: ExpressionKind::Column(Box::new(col)),
-            alias: None,
-        }
+        Expression { kind: ExpressionKind::Column(Box::new(col)), alias: None }
     }
 }
 
@@ -114,10 +105,7 @@ impl<'a> Column<'a> {
     where
         S: Into<Cow<'a, str>>,
     {
-        Column {
-            name: name.into(),
-            ..Default::default()
-        }
+        Column { name: name.into(), ..Default::default() }
     }
 
     /// Include the table name in the column expression.
@@ -156,10 +144,7 @@ impl<'a> Aliasable<'a> for Column<'a> {
 
 impl<'a> From<&'a str> for Column<'a> {
     fn from(s: &'a str) -> Self {
-        Column {
-            name: s.into(),
-            ..Default::default()
-        }
+        Column { name: s.into(), ..Default::default() }
     }
 }
 
@@ -171,10 +156,7 @@ impl<'a, 'b> From<&'a &'b str> for Column<'b> {
 
 impl<'a> From<String> for Column<'a> {
     fn from(s: String) -> Self {
-        Column {
-            name: s.into(),
-            ..Default::default()
-        }
+        Column { name: s.into(), ..Default::default() }
     }
 }
 

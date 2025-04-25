@@ -25,10 +25,7 @@ impl<'a> Expression<'a> {
 
     #[allow(dead_code)]
     pub(crate) fn row(row: Row<'a>) -> Self {
-        Self {
-            kind: ExpressionKind::Row(row),
-            alias: None,
-        }
+        Self { kind: ExpressionKind::Row(row), alias: None }
     }
 
     pub(crate) fn union(union: Union<'a>) -> Self {
@@ -37,10 +34,7 @@ impl<'a> Expression<'a> {
 
     #[allow(dead_code)]
     pub(crate) fn selection(selection: SelectQuery<'a>) -> Self {
-        Self {
-            kind: ExpressionKind::Selection(selection),
-            alias: None,
-        }
+        Self { kind: ExpressionKind::Selection(selection), alias: None }
     }
 
     #[cfg(feature = "json")]
@@ -145,29 +139,20 @@ impl<'a> Expression<'a> {
             ExpressionKind::Selection(s) => {
                 let (selection, ctes) = s.convert_tuple_selects_to_ctes(level);
 
-                let expr = Expression {
-                    kind: ExpressionKind::Selection(selection),
-                    alias: self.alias,
-                };
+                let expr = Expression { kind: ExpressionKind::Selection(selection), alias: self.alias };
 
                 (expr, ctes)
             }
             ExpressionKind::Compare(compare) => match compare.convert_tuple_select_to_cte(level) {
                 // No conversion
                 either::Either::Left(compare) => {
-                    let expr = Expression {
-                        kind: ExpressionKind::Compare(compare),
-                        alias: self.alias,
-                    };
+                    let expr = Expression { kind: ExpressionKind::Compare(compare), alias: self.alias };
 
                     (expr, Vec::new())
                 }
                 // Conversion happened
                 either::Either::Right((comp, ctes)) => {
-                    let expr = Expression {
-                        kind: ExpressionKind::Compare(comp),
-                        alias: self.alias,
-                    };
+                    let expr = Expression { kind: ExpressionKind::Compare(comp), alias: self.alias };
 
                     (expr, ctes)
                 }
@@ -175,10 +160,7 @@ impl<'a> Expression<'a> {
             ExpressionKind::ConditionTree(tree) => {
                 let (tree, ctes) = tree.convert_tuple_selects_to_ctes(level);
 
-                let expr = Expression {
-                    kind: ExpressionKind::ConditionTree(tree),
-                    alias: self.alias,
-                };
+                let expr = Expression { kind: ExpressionKind::ConditionTree(tree), alias: self.alias };
 
                 (expr, ctes)
             }
@@ -230,55 +212,37 @@ impl<'a> ExpressionKind<'a> {
 
 /// A quick alias to create an asterisk to a table.
 pub fn asterisk() -> Expression<'static> {
-    Expression {
-        kind: ExpressionKind::Asterisk(None),
-        alias: None,
-    }
+    Expression { kind: ExpressionKind::Asterisk(None), alias: None }
 }
 
 /// A quick alias to create a default value expression.
 pub fn default_value() -> Expression<'static> {
-    Expression {
-        kind: ExpressionKind::Default,
-        alias: None,
-    }
+    Expression { kind: ExpressionKind::Default, alias: None }
 }
 
 expression!(Row, Row);
 
 impl<'a> From<Function<'a>> for Expression<'a> {
     fn from(f: Function<'a>) -> Self {
-        Expression {
-            kind: ExpressionKind::Function(Box::new(f)),
-            alias: None,
-        }
+        Expression { kind: ExpressionKind::Function(Box::new(f)), alias: None }
     }
 }
 
 impl<'a> From<Raw<'a>> for Expression<'a> {
     fn from(r: Raw<'a>) -> Self {
-        Expression {
-            kind: ExpressionKind::RawValue(r),
-            alias: None,
-        }
+        Expression { kind: ExpressionKind::RawValue(r), alias: None }
     }
 }
 
 impl<'a> From<Values<'a>> for Expression<'a> {
     fn from(p: Values<'a>) -> Self {
-        Expression {
-            kind: ExpressionKind::Values(Box::new(p)),
-            alias: None,
-        }
+        Expression { kind: ExpressionKind::Values(Box::new(p)), alias: None }
     }
 }
 
 impl<'a> From<SqlOp<'a>> for Expression<'a> {
     fn from(p: SqlOp<'a>) -> Self {
-        Expression {
-            kind: ExpressionKind::Op(Box::new(p)),
-            alias: None,
-        }
+        Expression { kind: ExpressionKind::Op(Box::new(p)), alias: None }
     }
 }
 
@@ -287,10 +251,7 @@ where
     T: Into<Value<'a>>,
 {
     fn from(p: T) -> Self {
-        Expression {
-            kind: ExpressionKind::Parameterized(p.into()),
-            alias: None,
-        }
+        Expression { kind: ExpressionKind::Parameterized(p.into()), alias: None }
     }
 }
 

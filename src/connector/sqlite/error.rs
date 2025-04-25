@@ -34,10 +34,7 @@ impl From<rusqlite::Error> for Error {
             rusqlite::Error::QueryReturnedNoRows => Error::builder(ErrorKind::NotFound).build(),
 
             rusqlite::Error::SqliteFailure(
-                ffi::Error {
-                    code: ffi::ErrorCode::ConstraintViolation,
-                    extended_code: 2067,
-                },
+                ffi::Error { code: ffi::ErrorCode::ConstraintViolation, extended_code: 2067 },
                 Some(description),
             ) => {
                 let constraint = description
@@ -58,10 +55,7 @@ impl From<rusqlite::Error> for Error {
             }
 
             rusqlite::Error::SqliteFailure(
-                ffi::Error {
-                    code: ffi::ErrorCode::ConstraintViolation,
-                    extended_code: 1555,
-                },
+                ffi::Error { code: ffi::ErrorCode::ConstraintViolation, extended_code: 1555 },
                 Some(description),
             ) => {
                 let constraint = description
@@ -82,10 +76,7 @@ impl From<rusqlite::Error> for Error {
             }
 
             rusqlite::Error::SqliteFailure(
-                ffi::Error {
-                    code: ffi::ErrorCode::ConstraintViolation,
-                    extended_code: 1299,
-                },
+                ffi::Error { code: ffi::ErrorCode::ConstraintViolation, extended_code: 1299 },
                 Some(description),
             ) => {
                 let constraint = description
@@ -106,10 +97,7 @@ impl From<rusqlite::Error> for Error {
             }
 
             rusqlite::Error::SqliteFailure(
-                ffi::Error {
-                    code: ffi::ErrorCode::ConstraintViolation,
-                    extended_code: 787,
-                },
+                ffi::Error { code: ffi::ErrorCode::ConstraintViolation, extended_code: 787 },
                 Some(description),
             ) => {
                 let mut builder = Error::builder(ErrorKind::ForeignKeyConstraintViolation {
@@ -123,10 +111,7 @@ impl From<rusqlite::Error> for Error {
             }
 
             rusqlite::Error::SqliteFailure(
-                ffi::Error {
-                    code: ffi::ErrorCode::ConstraintViolation,
-                    extended_code: 1811,
-                },
+                ffi::Error { code: ffi::ErrorCode::ConstraintViolation, extended_code: 1811 },
                 Some(description),
             ) => {
                 let mut builder = Error::builder(ErrorKind::ForeignKeyConstraintViolation {
@@ -140,10 +125,7 @@ impl From<rusqlite::Error> for Error {
             }
 
             rusqlite::Error::SqliteFailure(
-                ffi::Error {
-                    code: ffi::ErrorCode::DatabaseBusy,
-                    extended_code,
-                },
+                ffi::Error { code: ffi::ErrorCode::DatabaseBusy, extended_code },
                 description,
             ) => {
                 let mut builder = Error::builder(ErrorKind::SocketTimeout);

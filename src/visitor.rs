@@ -734,36 +734,18 @@ pub trait Visitor<'a> {
             Compare::GreaterThanOrEquals(left, right) => self.visit_greater_than_or_equals(*left, *right),
             Compare::In(left, right) => match (*left, *right) {
                 // To prevent `x IN ()` from happening.
-                (
-                    _,
-                    Expression {
-                        kind: ExpressionKind::Row(ref row),
-                        ..
-                    },
-                ) if row.is_empty() => self.write("1=0"),
+                (_, Expression { kind: ExpressionKind::Row(ref row), .. }) if row.is_empty() => self.write("1=0"),
 
                 // To prevent `x IN ()` from happening.
                 (
-                    Expression {
-                        kind: ExpressionKind::Row(_),
-                        ..
-                    },
-                    Expression {
-                        kind: ExpressionKind::Values(ref vals),
-                        ..
-                    },
+                    Expression { kind: ExpressionKind::Row(_), .. },
+                    Expression { kind: ExpressionKind::Values(ref vals), .. },
                 ) if vals.row_len() == 0 => self.write("1=0"),
 
                 // Flattening out a row.
                 (
-                    Expression {
-                        kind: ExpressionKind::Row(mut cols),
-                        ..
-                    },
-                    Expression {
-                        kind: ExpressionKind::Values(vals),
-                        ..
-                    },
+                    Expression { kind: ExpressionKind::Row(mut cols), .. },
+                    Expression { kind: ExpressionKind::Values(vals), .. },
                 ) if cols.len() == 1 && vals.row_len() == 1 => {
                     let col = cols.pop().unwrap();
                     let vals = vals.flatten_row().unwrap();
@@ -774,27 +756,15 @@ pub trait Visitor<'a> {
                 }
 
                 // No need to do `IN` if right side is only one value,
-                (
-                    left,
-                    Expression {
-                        kind: ExpressionKind::Parameterized(pv),
-                        ..
-                    },
-                ) => {
+                (left, Expression { kind: ExpressionKind::Parameterized(pv), .. }) => {
                     self.visit_expression(left)?;
                     self.write(" = ")?;
                     self.visit_parameterized(pv)
                 }
 
                 (
-                    Expression {
-                        kind: ExpressionKind::Row(row),
-                        ..
-                    },
-                    Expression {
-                        kind: ExpressionKind::Values(values),
-                        ..
-                    },
+                    Expression { kind: ExpressionKind::Row(row), .. },
+                    Expression { kind: ExpressionKind::Values(values), .. },
                 ) => self.visit_multiple_tuple_comparison(row, *values, false),
 
                 // expr IN (..)
@@ -806,36 +776,18 @@ pub trait Visitor<'a> {
             },
             Compare::NotIn(left, right) => match (*left, *right) {
                 // To prevent `x NOT IN ()` from happening.
-                (
-                    _,
-                    Expression {
-                        kind: ExpressionKind::Row(ref row),
-                        ..
-                    },
-                ) if row.is_empty() => self.write("1=1"),
+                (_, Expression { kind: ExpressionKind::Row(ref row), .. }) if row.is_empty() => self.write("1=1"),
 
                 // To prevent `x NOT IN ()` from happening.
                 (
-                    Expression {
-                        kind: ExpressionKind::Row(_),
-                        ..
-                    },
-                    Expression {
-                        kind: ExpressionKind::Values(ref vals),
-                        ..
-                    },
+                    Expression { kind: ExpressionKind::Row(_), .. },
+                    Expression { kind: ExpressionKind::Values(ref vals), .. },
                 ) if vals.row_len() == 0 => self.write("1=1"),
 
                 // Flattening out a row.
                 (
-                    Expression {
-                        kind: ExpressionKind::Row(mut cols),
-                        ..
-                    },
-                    Expression {
-                        kind: ExpressionKind::Values(vals),
-                        ..
-                    },
+                    Expression { kind: ExpressionKind::Row(mut cols), .. },
+                    Expression { kind: ExpressionKind::Values(vals), .. },
                 ) if cols.len() == 1 && vals.row_len() == 1 => {
                     let col = cols.pop().unwrap();
                     let vals = vals.flatten_row().unwrap();
@@ -846,27 +798,15 @@ pub trait Visitor<'a> {
                 }
 
                 // No need to do `IN` if right side is only one value,
-                (
-                    left,
-                    Expression {
-                        kind: ExpressionKind::Parameterized(pv),
-                        ..
-                    },
-                ) => {
+                (left, Expression { kind: ExpressionKind::Parameterized(pv), .. }) => {
                     self.visit_expression(left)?;
                     self.write(" <> ")?;
                     self.visit_parameterized(pv)
                 }
 
                 (
-                    Expression {
-                        kind: ExpressionKind::Row(row),
-                        ..
-                    },
-                    Expression {
-                        kind: ExpressionKind::Values(values),
-                        ..
-                    },
+                    Expression { kind: ExpressionKind::Row(row), .. },
+                    Expression { kind: ExpressionKind::Values(values), .. },
                 ) => self.visit_multiple_tuple_comparison(row, *values, true),
 
                 // expr IN (..)
@@ -1114,11 +1054,7 @@ pub trait Visitor<'a> {
     }
 
     fn visit_cte(&mut self, cte: CommonTableExpression<'a>) -> Result {
-        let cols = cte
-            .columns
-            .into_iter()
-            .map(|s| Column::from(s.into_owned()))
-            .collect::<Vec<_>>();
+        let cols = cte.columns.into_iter().map(|s| Column::from(s.into_owned())).collect::<Vec<_>>();
 
         self.visit_column(Column::from(cte.identifier.into_owned()))?;
 

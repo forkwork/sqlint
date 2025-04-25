@@ -190,10 +190,7 @@ impl<'a> Visitor<'a> for Mysql<'a> {
         }
 
         match insert.values {
-            Expression {
-                kind: ExpressionKind::Row(row),
-                ..
-            } => {
+            Expression { kind: ExpressionKind::Row(row), .. } => {
                 if row.values.is_empty() {
                     self.write(" () VALUES ()")?;
                 } else {
@@ -213,10 +210,7 @@ impl<'a> Visitor<'a> for Mysql<'a> {
                     self.visit_row(row)?;
                 }
             }
-            Expression {
-                kind: ExpressionKind::Values(values),
-                ..
-            } => {
+            Expression { kind: ExpressionKind::Values(values), .. } => {
                 let columns = insert.columns.len();
 
                 self.write(" (")?;
@@ -514,9 +508,7 @@ impl<'a> Visitor<'a> for Mysql<'a> {
         }
 
         self.visit_expression(left)?;
-        self.surround_with("AGAINST (", " IN BOOLEAN MODE)", |s| {
-            s.visit_parameterized(Value::text(right))
-        })?;
+        self.surround_with("AGAINST (", " IN BOOLEAN MODE)", |s| s.visit_parameterized(Value::text(right)))?;
 
         if not {
             self.write(")")?;
@@ -667,9 +659,7 @@ mod tests {
     #[test]
     fn test_multi_row_insert() {
         let expected = expected_values("INSERT INTO `users` (`foo`) VALUES (?), (?)", vec![10, 11]);
-        let query = Insert::multi_into("users", vec!["foo"])
-            .values(vec![10])
-            .values(vec![11]);
+        let query = Insert::multi_into("users", vec!["foo"]).values(vec![10]).values(vec![11]);
         let (sql, params) = Mysql::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -688,10 +678,8 @@ mod tests {
 
     #[test]
     fn test_limit_and_offset_when_only_offset_is_set() {
-        let expected = expected_values(
-            "SELECT `users`.* FROM `users` LIMIT ? OFFSET ?",
-            vec![9_223_372_036_854_775_807i64, 10],
-        );
+        let expected =
+            expected_values("SELECT `users`.* FROM `users` LIMIT ? OFFSET ?", vec![9_223_372_036_854_775_807i64, 10]);
 
         let query = Select::from_table("users").offset(10);
         let (sql, params) = Mysql::build(query).unwrap();
@@ -721,10 +709,7 @@ mod tests {
         let (sql, params) = Mysql::build(query).unwrap();
 
         assert_eq!(expected_sql, sql);
-        assert_eq!(
-            vec![Value::int32(1), Value::int32(2), Value::int32(3), Value::int32(4),],
-            params
-        );
+        assert_eq!(vec![Value::int32(1), Value::int32(2), Value::int32(3), Value::int32(4),], params);
     }
 
     #[cfg(feature = "json")]
@@ -889,9 +874,7 @@ mod tests {
 
     #[test]
     fn test_default_insert() {
-        let insert = Insert::single_into("foo")
-            .value("foo", "bar")
-            .value("baz", default_value());
+        let insert = Insert::single_into("foo").value("foo", "bar").value("baz", default_value());
 
         let (sql, _) = Mysql::build(insert).unwrap();
 
@@ -900,11 +883,8 @@ mod tests {
 
     #[test]
     fn join_is_inserted_positionally() {
-        let joined_table = Table::from("User").left_join(
-            "Post"
-                .alias("p")
-                .on(("p", "userId").equals(Column::from(("User", "id")))),
-        );
+        let joined_table =
+            Table::from("User").left_join("Post".alias("p").on(("p", "userId").equals(Column::from(("User", "id")))));
         let q = Select::from_table(joined_table).and_from("Toto");
         let (sql, _) = Mysql::build(q).unwrap();
 

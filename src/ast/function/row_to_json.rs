@@ -45,10 +45,7 @@ pub fn row_to_json<'a, T>(expr: T, pretty_print: bool) -> Function<'a>
 where
     T: Into<Table<'a>>,
 {
-    let fun = RowToJson {
-        expr: expr.into(),
-        pretty_print,
-    };
+    let fun = RowToJson { expr: expr.into(), pretty_print };
 
     fun.into()
 }

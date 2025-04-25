@@ -22,9 +22,7 @@ pub fn count<'a, T>(expr: T) -> Function<'a>
 where
     T: Into<Expression<'a>>,
 {
-    let fun = Count {
-        exprs: vec![expr.into()],
-    };
+    let fun = Count { exprs: vec![expr.into()] };
 
     fun.into()
 }

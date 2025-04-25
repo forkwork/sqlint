@@ -125,8 +125,7 @@ impl Manager for SqlintManager {
             }
         };
 
-        conn.iter()
-            .for_each(|_| tracing::debug!("Acquired database connection."));
+        conn.iter().for_each(|_| tracing::debug!("Acquired database connection."));
 
         conn
     }

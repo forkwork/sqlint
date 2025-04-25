@@ -38,12 +38,7 @@ impl<'a> MySql<'a> {
         let names = Generator::default();
         let conn = Sqlint::new(conn_str).await?;
 
-        Ok(Self {
-            names,
-            conn,
-            tag,
-            conn_str: conn_str.into(),
-        })
+        Ok(Self { names, conn, tag, conn_str: conn_str.into() })
     }
 
     fn render_perm_create_table(&mut self, table_name: &str, columns: &str) -> (String, String) {
@@ -64,8 +59,7 @@ impl<'a> TestApi for MySql<'a> {
     }
 
     async fn create_type_table(&mut self, r#type: &str) -> crate::Result<String> {
-        self.create_temp_table(&format!("{}, `value` {}", self.autogen_id("id"), r#type))
-            .await
+        self.create_temp_table(&format!("{}, `value` {}", self.autogen_id("id"), r#type)).await
     }
 
     async fn create_temp_table(&mut self, columns: &str) -> crate::Result<String> {
@@ -136,10 +130,7 @@ impl<'a> TestApi for MySql<'a> {
     fn foreign_key(&mut self, parent_table: &str, parent_column: &str, child_column: &str) -> String {
         let name = self.get_name();
 
-        format!(
-            "CONSTRAINT {} FOREIGN KEY ({}) REFERENCES {}({})",
-            &name, child_column, parent_table, parent_column
-        )
+        format!("CONSTRAINT {} FOREIGN KEY ({}) REFERENCES {}({})", &name, child_column, parent_table, parent_column)
     }
 
     fn autogen_id(&self, name: &str) -> String {

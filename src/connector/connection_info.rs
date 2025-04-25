@@ -57,10 +57,7 @@ impl ConnectionInfo {
                 if url_result.is_err() {
                     let params = SqliteParams::try_from(s)?;
 
-                    return Ok(ConnectionInfo::Sqlite {
-                        file_path: params.file_path,
-                        db_name: params.db_name,
-                    });
+                    return Ok(ConnectionInfo::Sqlite { file_path: params.file_path, db_name: params.db_name });
                 }
             }
             #[cfg(feature = "mssql")]
@@ -85,10 +82,7 @@ impl ConnectionInfo {
             SqlFamily::Sqlite => {
                 let params = SqliteParams::try_from(url_str)?;
 
-                Ok(ConnectionInfo::Sqlite {
-                    file_path: params.file_path,
-                    db_name: params.db_name,
-                })
+                Ok(ConnectionInfo::Sqlite { file_path: params.file_path, db_name: params.db_name })
             }
             #[cfg(feature = "postgresql")]
             SqlFamily::Postgres => Ok(ConnectionInfo::Postgres(PostgresUrl::new(url)?)),

@@ -23,9 +23,7 @@ pub fn concat<'a, T>(exprs: Vec<T>) -> Function<'a>
 where
     T: Into<Expression<'a>>,
 {
-    let fun = Concat {
-        exprs: exprs.into_iter().map(Into::into).collect(),
-    };
+    let fun = Concat { exprs: exprs.into_iter().map(Into::into).collect() };
 
     fun.into()
 }

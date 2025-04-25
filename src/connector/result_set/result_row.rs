@@ -61,10 +61,7 @@ impl ResultRow {
 
     /// Make a referring [ResultRowRef](struct.ResultRowRef.html).
     pub fn as_ref(&self) -> ResultRowRef {
-        ResultRowRef {
-            columns: Arc::clone(&self.columns),
-            values: &self.values,
-        }
+        ResultRowRef { columns: Arc::clone(&self.columns), values: &self.values }
     }
 
     pub fn into_single(self) -> crate::Result<Value<'static>> {

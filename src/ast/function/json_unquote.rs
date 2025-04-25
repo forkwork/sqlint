@@ -21,9 +21,7 @@ pub fn json_unquote<'a, E>(expr: E) -> Function<'a>
 where
     E: Into<Expression<'a>>,
 {
-    let fun = JsonUnquote {
-        expr: Box::new(expr.into()),
-    };
+    let fun = JsonUnquote { expr: Box::new(expr.into()) };
 
     fun.into()
 }

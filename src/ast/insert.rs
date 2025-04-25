@@ -99,11 +99,8 @@ impl<'a> From<Insert<'a>> for Query<'a> {
 
 impl<'a> From<SingleRowInsert<'a>> for Insert<'a> {
     fn from(insert: SingleRowInsert<'a>) -> Self {
-        let values = if insert.values.is_empty() {
-            Expression::from(Row::new())
-        } else {
-            Expression::from(insert.values)
-        };
+        let values =
+            if insert.values.is_empty() { Expression::from(Row::new()) } else { Expression::from(insert.values) };
 
         Insert {
             table: insert.table,
@@ -160,19 +157,11 @@ impl<'a> Insert<'a> {
     where
         T: Into<Table<'a>>,
     {
-        SingleRowInsert {
-            table: Some(table.into()),
-            columns: Vec::new(),
-            values: Row::new(),
-        }
+        SingleRowInsert { table: Some(table.into()), columns: Vec::new(), values: Row::new() }
     }
 
     pub fn single() -> SingleRowInsert<'a> {
-        SingleRowInsert {
-            table: None,
-            columns: Vec::new(),
-            values: Row::new(),
-        }
+        SingleRowInsert { table: None, columns: Vec::new(), values: Row::new() }
     }
 
     /// Creates a new multi row `INSERT` statement for the given table.
@@ -194,11 +183,7 @@ impl<'a> Insert<'a> {
         K: Into<Column<'a>>,
         I: IntoIterator<Item = K>,
     {
-        MultiRowInsert {
-            table: None,
-            columns: columns.into_iter().map(|c| c.into()).collect(),
-            values: Vec::new(),
-        }
+        MultiRowInsert { table: None, columns: columns.into_iter().map(|c| c.into()).collect(), values: Vec::new() }
     }
 
     pub fn expression_into<T, I, K, E>(table: T, columns: I, expression: E) -> Self
@@ -256,10 +241,7 @@ impl<'a> Insert<'a> {
     /// # }
     /// ```
     #[cfg(any(feature = "postgresql", feature = "mssql", feature = "sqlite"))]
-    #[cfg_attr(
-        feature = "docs",
-        doc(cfg(any(feature = "postgresql", feature = "mssql", feature = "sqlite")))
-    )]
+    #[cfg_attr(feature = "docs", doc(cfg(any(feature = "postgresql", feature = "mssql", feature = "sqlite"))))]
     pub fn returning<K, I>(mut self, columns: I) -> Self
     where
         K: Into<Column<'a>>,

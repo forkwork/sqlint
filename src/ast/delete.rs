@@ -32,11 +32,7 @@ impl<'a> Delete<'a> {
     where
         T: Into<Table<'a>>,
     {
-        Self {
-            table: table.into(),
-            conditions: None,
-            comment: None,
-        }
+        Self { table: table.into(), conditions: None, comment: None }
     }
 
     /// Adds a comment to the delete.

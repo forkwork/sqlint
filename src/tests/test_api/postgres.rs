@@ -33,8 +33,7 @@ impl<'a> TestApi for PostgreSql<'a> {
     }
 
     async fn create_type_table(&mut self, r#type: &str) -> crate::Result<String> {
-        self.create_temp_table(&format!("{}, value {}", self.autogen_id("id"), r#type))
-            .await
+        self.create_temp_table(&format!("{}, value {}", self.autogen_id("id"), r#type)).await
     }
 
     async fn create_table(&mut self, _columns: &str) -> crate::Result<String> {
@@ -94,10 +93,7 @@ impl<'a> TestApi for PostgreSql<'a> {
     fn foreign_key(&mut self, parent_table: &str, parent_column: &str, child_column: &str) -> String {
         let name = self.get_name();
 
-        format!(
-            "CONSTRAINT {} FOREIGN KEY ({}) REFERENCES {}({})",
-            &name, child_column, parent_table, parent_column
-        )
+        format!("CONSTRAINT {} FOREIGN KEY ({}) REFERENCES {}({})", &name, child_column, parent_table, parent_column)
     }
 
     fn autogen_id(&self, name: &str) -> String {

@@ -22,9 +22,7 @@ pub fn upper<'a, E>(expression: E) -> Function<'a>
 where
     E: Into<Expression<'a>>,
 {
-    let fun = Upper {
-        expression: Box::new(expression.into()),
-    };
+    let fun = Upper { expression: Box::new(expression.into()) };
 
     fun.into()
 }

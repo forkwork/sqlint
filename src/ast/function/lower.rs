@@ -22,9 +22,7 @@ pub fn lower<'a, E>(expression: E) -> Function<'a>
 where
     E: Into<Expression<'a>>,
 {
-    let fun = Lower {
-        expression: Box::new(expression.into()),
-    };
+    let fun = Lower { expression: Box::new(expression.into()) };
 
     fun.into()
 }

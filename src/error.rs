@@ -97,21 +97,13 @@ impl ErrorBuilder {
     }
 
     pub(crate) fn build(self) -> Error {
-        Error {
-            kind: self.kind,
-            original_code: self.original_code,
-            original_message: self.original_message,
-        }
+        Error { kind: self.kind, original_code: self.original_code, original_message: self.original_message }
     }
 }
 
 impl Error {
     pub(crate) fn builder(kind: ErrorKind) -> ErrorBuilder {
-        ErrorBuilder {
-            kind,
-            original_code: None,
-            original_message: None,
-        }
+        ErrorBuilder { kind, original_code: None, original_message: None }
     }
 
     /// The error code sent by the database, if available.
@@ -237,11 +229,7 @@ pub enum ErrorKind {
     #[error("Deserializing a ResultRow {:?}", _0)]
     FromRowError(serde::de::value::Error),
 
-    #[error(
-        "Incorrect number of parameters given to a statement. Expected {}: got: {}.",
-        expected,
-        actual
-    )]
+    #[error("Incorrect number of parameters given to a statement. Expected {}: got: {}.", expected, actual)]
     IncorrectNumberOfParameters { expected: usize, actual: usize },
 
     #[error("Transaction was already closed: {}", _0)]
@@ -283,11 +271,7 @@ impl ErrorKind {
 
     #[cfg(feature = "pooled")]
     pub(crate) fn pool_timeout(max_open: u64, in_use: u64, timeout: Duration) -> Self {
-        Self::PoolTimeout {
-            max_open,
-            in_use,
-            timeout: timeout.as_secs(),
-        }
+        Self::PoolTimeout { max_open, in_use, timeout: timeout.as_secs() }
     }
 
     pub(crate) fn invalid_isolation_level(isolation_level: &IsolationLevel) -> Self {
@@ -326,10 +310,7 @@ impl From<std::fmt::Error> for Error {
 
 impl From<num::TryFromIntError> for Error {
     fn from(_: num::TryFromIntError) -> Self {
-        Self::builder(ErrorKind::conversion(
-            "Couldn't convert an integer (possible overflow).",
-        ))
-        .build()
+        Self::builder(ErrorKind::conversion("Couldn't convert an integer (possible overflow).")).build()
     }
 }
 
@@ -372,10 +353,7 @@ impl From<std::string::FromUtf8Error> for Error {
 
 impl From<std::net::AddrParseError> for Error {
     fn from(e: std::net::AddrParseError) -> Self {
-        Error::builder(ErrorKind::conversion(format!(
-            "Couldn't convert data to std::net::IpAddr: {e}"
-        )))
-        .build()
+        Error::builder(ErrorKind::conversion(format!("Couldn't convert data to std::net::IpAddr: {e}"))).build()
     }
 }
 

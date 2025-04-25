@@ -22,9 +22,7 @@ pub fn sum<'a, E>(expr: E) -> Function<'a>
 where
     E: Into<Expression<'a>>,
 {
-    let fun = Sum {
-        expr: Box::new(expr.into()),
-    };
+    let fun = Sum { expr: Box::new(expr.into()) };
 
     fun.into()
 }

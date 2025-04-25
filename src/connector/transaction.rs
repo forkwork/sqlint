@@ -172,9 +172,6 @@ impl FromStr for IsolationLevel {
 }
 impl TransactionOptions {
     pub(crate) fn new(isolation_level: Option<IsolationLevel>, isolation_first: bool) -> Self {
-        Self {
-            isolation_level,
-            isolation_first,
-        }
+        Self { isolation_level, isolation_first }
     }
 }

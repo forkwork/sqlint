@@ -101,9 +101,8 @@ impl TransactionCapable for Mssql {
         // Always explicitly setting the isolation level each time a tx is started (either to the given value
         // or by using the default/connection string value) prevents transactions started on connections from
         // the pool to have unexpected isolation levels set.
-        let isolation = isolation
-            .or(self.url.query_params.transaction_isolation_level)
-            .or(Some(SQL_SERVER_DEFAULT_ISOLATION));
+        let isolation =
+            isolation.or(self.url.query_params.transaction_isolation_level).or(Some(SQL_SERVER_DEFAULT_ISOLATION));
 
         let opts = TransactionOptions::new(isolation, self.requires_isolation_first());
 
@@ -297,16 +296,10 @@ impl Mssql {
 
         let client = super::timeout::connect(url.connect_timeout(), connecting).await?;
 
-        let this = Self {
-            client: Mutex::new(client),
-            url,
-            socket_timeout,
-            is_healthy: AtomicBool::new(true),
-        };
+        let this = Self { client: Mutex::new(client), url, socket_timeout, is_healthy: AtomicBool::new(true) };
 
         if let Some(isolation) = this.url.transaction_isolation_level() {
-            this.raw_cmd(&format!("SET TRANSACTION ISOLATION LEVEL {isolation}"))
-                .await?;
+            this.raw_cmd(&format!("SET TRANSACTION ISOLATION LEVEL {isolation}")).await?;
         };
 
         Ok(this)
@@ -423,9 +416,7 @@ impl Queryable for Mssql {
         let query = r#"SELECT @@VERSION AS version"#;
         let rows = self.query_raw(query, &[]).await?;
 
-        let version_string = rows
-            .get(0)
-            .and_then(|row| row.get("version").and_then(|version| version.to_string()));
+        let version_string = rows.get(0).and_then(|row| row.get("version").and_then(|version| version.to_string()));
 
         Ok(version_string)
     }
@@ -435,8 +426,7 @@ impl Queryable for Mssql {
     }
 
     async fn set_tx_isolation_level(&self, isolation_level: IsolationLevel) -> crate::Result<()> {
-        self.raw_cmd(&format!("SET TRANSACTION ISOLATION LEVEL {isolation_level}"))
-            .await?;
+        self.raw_cmd(&format!("SET TRANSACTION ISOLATION LEVEL {isolation_level}")).await?;
 
         Ok(())
     }
@@ -455,10 +445,7 @@ impl MssqlUrl {
         let query_params = Self::parse_query_params(jdbc_connection_string)?;
         let connection_string = Self::with_jdbc_prefix(jdbc_connection_string);
 
-        Ok(Self {
-            connection_string,
-            query_params,
-        })
+        Ok(Self { connection_string, query_params })
     }
 
     fn with_jdbc_prefix(input: &str) -> String {
@@ -535,11 +522,8 @@ impl MssqlUrl {
             .map(|param| param.parse().map(Duration::from_secs))
             .transpose()?;
 
-        let encrypt = props
-            .remove("encrypt")
-            .map(|param| EncryptMode::from_str(&param))
-            .transpose()?
-            .unwrap_or(EncryptMode::On);
+        let encrypt =
+            props.remove("encrypt").map(|param| EncryptMode::from_str(&param)).transpose()?.unwrap_or(EncryptMode::On);
 
         let trust_server_certificate = props
             .remove("trustservercertificate")
@@ -548,14 +532,11 @@ impl MssqlUrl {
             .transpose()?
             .unwrap_or(false);
 
-        let trust_server_certificate_ca: Option<String> = props
-            .remove("trustservercertificateca")
-            .or_else(|| props.remove("trust_server_certificate_ca"));
+        let trust_server_certificate_ca: Option<String> =
+            props.remove("trustservercertificateca").or_else(|| props.remove("trust_server_certificate_ca"));
 
-        let mut max_connection_lifetime = props
-            .remove("max_connection_lifetime")
-            .map(|param| param.parse().map(Duration::from_secs))
-            .transpose()?;
+        let mut max_connection_lifetime =
+            props.remove("max_connection_lifetime").map(|param| param.parse().map(Duration::from_secs)).transpose()?;
 
         match max_connection_lifetime {
             Some(dur) if dur.as_secs() == 0 => max_connection_lifetime = None,

@@ -70,11 +70,7 @@ where
     C: Into<Expression<'a>>,
     P: Into<JsonPath<'a>>,
 {
-    let fun = JsonExtract {
-        column: Box::new(column.into()),
-        path: path.into(),
-        extract_as_string,
-    };
+    let fun = JsonExtract { column: Box::new(column.into()), path: path.into(), extract_as_string };
 
     fun.into()
 }

@@ -58,10 +58,7 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
     where
         Q: Into<Query<'a>>,
     {
-        let mut sqlite = Sqlite {
-            query: String::with_capacity(4096),
-            parameters: Vec::with_capacity(128),
-        };
+        let mut sqlite = Sqlite { query: String::with_capacity(4096), parameters: Vec::with_capacity(128) };
 
         Sqlite::visit_query(&mut sqlite, query.into())?;
 
@@ -142,10 +139,7 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
         }
 
         match insert.values {
-            Expression {
-                kind: ExpressionKind::Row(row),
-                ..
-            } => {
+            Expression { kind: ExpressionKind::Row(row), .. } => {
                 if row.values.is_empty() {
                     self.write(" DEFAULT VALUES")?;
                 } else {
@@ -165,10 +159,7 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
                     self.visit_row(row)?;
                 }
             }
-            Expression {
-                kind: ExpressionKind::Values(values),
-                ..
-            } => {
+            Expression { kind: ExpressionKind::Values(values), .. } => {
                 let columns = insert.columns.len();
 
                 self.write(" (")?;
@@ -462,10 +453,7 @@ mod tests {
         let (sql, params) = Sqlite::build(query).unwrap();
 
         assert_eq!(expected_sql, sql);
-        assert_eq!(
-            vec![Value::int32(1), Value::int32(2), Value::int32(3), Value::int32(4),],
-            params
-        );
+        assert_eq!(vec![Value::int32(1), Value::int32(2), Value::int32(3), Value::int32(4),], params);
     }
 
     #[test]
@@ -479,10 +467,7 @@ mod tests {
         let (sql, params) = Sqlite::build(query).unwrap();
 
         assert_eq!(expected_sql, sql);
-        assert_eq!(
-            vec![Value::int32(1), Value::int32(2), Value::int32(3), Value::int32(4),],
-            params
-        );
+        assert_eq!(vec![Value::int32(1), Value::int32(2), Value::int32(3), Value::int32(4),], params);
     }
 
     #[test]
@@ -514,10 +499,7 @@ mod tests {
     #[test]
     fn test_select_order_by() {
         let expected_sql = "SELECT `musti`.* FROM `musti` ORDER BY `foo`, `baz` ASC, `bar` DESC";
-        let query = Select::from_table("musti")
-            .order_by("foo")
-            .order_by("baz".ascend())
-            .order_by("bar".descend());
+        let query = Select::from_table("musti").order_by("foo").order_by("baz".ascend()).order_by("bar".descend());
         let (sql, params) = Sqlite::build(query).unwrap();
 
         assert_eq!(expected_sql, sql);
@@ -558,10 +540,7 @@ mod tests {
 
     #[test]
     fn test_select_where_not_like() {
-        let expected = expected_values(
-            "SELECT `naukio`.* FROM `naukio` WHERE `word` NOT LIKE ?",
-            vec!["%meow%"],
-        );
+        let expected = expected_values("SELECT `naukio`.* FROM `naukio` WHERE `word` NOT LIKE ?", vec!["%meow%"]);
 
         let query = Select::from_table("naukio").so_that("word".not_like("%meow%"));
         let (sql, params) = Sqlite::build(query).unwrap();
@@ -668,11 +647,7 @@ mod tests {
 
         let expected_params = vec![Value::text("meow"), Value::int32(10), Value::text("warm")];
 
-        let conditions = "word"
-            .equals("meow")
-            .or("age".less_than(10))
-            .and("paw".equals("warm"))
-            .not();
+        let conditions = "word".equals("meow").or("age".less_than(10)).and("paw".equals("warm")).not();
 
         let query = Select::from_table("naukio").so_that(conditions);
 
@@ -713,11 +688,10 @@ mod tests {
         let expected_sql =
             "SELECT `users`.* FROM `users` INNER JOIN `posts` ON (`users`.`id` = `posts`.`user_id` AND `posts`.`published` = ?)";
 
-        let query = Select::from_table("users").inner_join(
-            "posts".on(("users", "id")
-                .equals(Column::from(("posts", "user_id")))
-                .and(("posts", "published").equals(true))),
-        );
+        let query =
+            Select::from_table("users").inner_join("posts".on(
+                ("users", "id").equals(Column::from(("posts", "user_id"))).and(("posts", "published").equals(true)),
+            ));
 
         let (sql, params) = Sqlite::build(query).unwrap();
 
@@ -741,11 +715,10 @@ mod tests {
         let expected_sql =
             "SELECT `users`.* FROM `users` LEFT JOIN `posts` ON (`users`.`id` = `posts`.`user_id` AND `posts`.`published` = ?)";
 
-        let query = Select::from_table("users").left_join(
-            "posts".on(("users", "id")
-                .equals(Column::from(("posts", "user_id")))
-                .and(("posts", "published").equals(true))),
-        );
+        let query =
+            Select::from_table("users").left_join("posts".on(
+                ("users", "id").equals(Column::from(("posts", "user_id"))).and(("posts", "published").equals(true)),
+            ));
 
         let (sql, params) = Sqlite::build(query).unwrap();
 
@@ -813,14 +786,10 @@ mod tests {
     fn sqlite_harness() -> ::rusqlite::Connection {
         let conn = ::rusqlite::Connection::open_in_memory().unwrap();
 
-        conn.execute("CREATE TABLE users (id, name TEXT, age REAL, nice INTEGER)", [])
-            .unwrap();
+        conn.execute("CREATE TABLE users (id, name TEXT, age REAL, nice INTEGER)", []).unwrap();
 
-        let insert = Insert::single_into("users")
-            .value("id", 1)
-            .value("name", "Alice")
-            .value("age", 42.69)
-            .value("nice", true);
+        let insert =
+            Insert::single_into("users").value("id", 1).value("name", "Alice").value("age", 42.69).value("nice", true);
 
         let (sql, params) = Sqlite::build(insert).unwrap();
 
@@ -847,11 +816,7 @@ mod tests {
         let mut stmt = conn.prepare(&sql_str).unwrap();
         let mut person_iter = stmt
             .query_map(rusqlite::params_from_iter(params.iter()), |row| {
-                Ok(Person {
-                    name: row.get(1).unwrap(),
-                    age: row.get(2).unwrap(),
-                    nice: row.get(3).unwrap(),
-                })
+                Ok(Person { name: row.get(1).unwrap(), age: row.get(2).unwrap(), nice: row.get(3).unwrap() })
             })
             .unwrap();
 
@@ -946,9 +911,7 @@ mod tests {
 
     #[test]
     fn test_default_insert() {
-        let insert = Insert::single_into("foo")
-            .value("foo", "bar")
-            .value("baz", default_value());
+        let insert = Insert::single_into("foo").value("foo", "bar").value("baz", default_value());
 
         let (sql, _) = Sqlite::build(insert).unwrap();
 
@@ -957,11 +920,8 @@ mod tests {
 
     #[test]
     fn join_is_inserted_positionally() {
-        let joined_table = Table::from("User").left_join(
-            "Post"
-                .alias("p")
-                .on(("p", "userId").equals(Column::from(("User", "id")))),
-        );
+        let joined_table =
+            Table::from("User").left_join("Post".alias("p").on(("p", "userId").equals(Column::from(("User", "id")))));
         let q = Select::from_table(joined_table).and_from("Toto");
         let (sql, _) = Sqlite::build(q).unwrap();
 
@@ -978,10 +938,7 @@ mod tests {
 
         let (sql, _) = Sqlite::build(insert).unwrap();
 
-        assert_eq!(
-            "INSERT INTO `test` (`user id`, `txt`) VALUES (?,?) RETURNING `user id` AS `user id`",
-            sql
-        );
+        assert_eq!("INSERT INTO `test` (`user id`, `txt`) VALUES (?,?) RETURNING `user id` AS `user id`", sql);
     }
 
     #[test]

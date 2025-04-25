@@ -149,10 +149,7 @@ macro_rules! expression {
     ($kind:ident,$paramkind:ident) => {
         impl<'a> From<$kind<'a>> for Expression<'a> {
             fn from(that: $kind<'a>) -> Self {
-                Expression {
-                    kind: ExpressionKind::$paramkind(that),
-                    alias: None,
-                }
+                Expression { kind: ExpressionKind::$paramkind(that), alias: None }
             }
         }
     };

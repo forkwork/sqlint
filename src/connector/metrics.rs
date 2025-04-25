@@ -33,11 +33,8 @@ where
     #[cfg(feature = "fmt-sql")]
     {
         if std::env::var("FMT_SQL").is_ok() {
-            let query_fmt = sqlformat::format(
-                query,
-                &sqlformat::QueryParams::None,
-                sqlformat::FormatOptions::default(),
-            );
+            let query_fmt =
+                sqlformat::format(query, &sqlformat::QueryParams::None, sqlformat::FormatOptions::default());
 
             trace_query(&query_fmt, params, result, start);
         } else {

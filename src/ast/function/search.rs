@@ -68,10 +68,7 @@ where
     Q: Into<Cow<'a, str>>,
 {
     let exprs: Vec<Expression> = exprs.iter().map(|c| c.clone().into()).collect();
-    let fun = TextSearchRelevance {
-        exprs,
-        query: query.into(),
-    };
+    let fun = TextSearchRelevance { exprs, query: query.into() };
 
     fun.into()
 }

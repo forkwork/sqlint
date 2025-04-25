@@ -29,8 +29,7 @@ impl<'a> TestApi for Sqlite<'a> {
     }
 
     async fn create_type_table(&mut self, r#type: &str) -> crate::Result<String> {
-        self.create_temp_table(&format!("{}, `value` {}", self.autogen_id("id"), r#type))
-            .await
+        self.create_temp_table(&format!("{}, `value` {}", self.autogen_id("id"), r#type)).await
     }
 
     async fn create_table(&mut self, _columns: &str) -> crate::Result<String> {

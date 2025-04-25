@@ -21,11 +21,7 @@ pub struct ResultSet {
 impl ResultSet {
     /// Creates a new instance, bound to the given column names and result rows.
     pub fn new(names: Vec<String>, rows: Vec<Vec<Value<'static>>>) -> Self {
-        Self {
-            columns: Arc::new(names),
-            rows,
-            last_insert_id: None,
-        }
+        Self { columns: Arc::new(names), rows, last_insert_id: None }
     }
 
     #[cfg(any(feature = "sqlite", feature = "mysql"))]
@@ -61,10 +57,7 @@ impl ResultSet {
 
     /// Returns a reference to a row in a given position.
     pub fn get(&self, index: usize) -> Option<ResultRowRef> {
-        self.rows.get(index).map(|row| ResultRowRef {
-            columns: Arc::clone(&self.columns),
-            values: row,
-        })
+        self.rows.get(index).map(|row| ResultRowRef { columns: Arc::clone(&self.columns), values: row })
     }
 
     /// Takes the first row if existing, otherwise returns error.
@@ -81,10 +74,7 @@ impl IntoIterator for ResultSet {
     type IntoIter = ResultSetIterator;
 
     fn into_iter(self) -> Self::IntoIter {
-        ResultSetIterator {
-            columns: self.columns,
-            internal_iterator: self.rows.into_iter(),
-        }
+        ResultSetIterator { columns: self.columns, internal_iterator: self.rows.into_iter() }
     }
 }
 
@@ -100,10 +90,7 @@ impl Iterator for ResultSetIterator {
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.internal_iterator.next() {
-            Some(row) => Some(ResultRow {
-                columns: Arc::clone(&self.columns),
-                values: row,
-            }),
+            Some(row) => Some(ResultRow { columns: Arc::clone(&self.columns), values: row }),
             None => None,
         }
     }

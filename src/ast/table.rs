@@ -51,10 +51,7 @@ impl<'a> Table<'a> {
 
     /// A qualified asterisk to this table
     pub fn asterisk(self) -> Expression<'a> {
-        Expression {
-            kind: ExpressionKind::Asterisk(Some(Box::new(self))),
-            alias: None,
-        }
+        Expression { kind: ExpressionKind::Asterisk(Some(Box::new(self))), alias: None }
     }
 
     /// Add unique index definition.
@@ -319,23 +316,13 @@ impl<'a> Table<'a> {
 
 impl<'a> From<&'a str> for Table<'a> {
     fn from(s: &'a str) -> Table<'a> {
-        Table {
-            typ: TableType::Table(s.into()),
-            alias: None,
-            database: None,
-            index_definitions: Vec::new(),
-        }
+        Table { typ: TableType::Table(s.into()), alias: None, database: None, index_definitions: Vec::new() }
     }
 }
 
 impl<'a> From<&'a String> for Table<'a> {
     fn from(s: &'a String) -> Table<'a> {
-        Table {
-            typ: TableType::Table(s.into()),
-            alias: None,
-            database: None,
-            index_definitions: Vec::new(),
-        }
+        Table { typ: TableType::Table(s.into()), alias: None, database: None, index_definitions: Vec::new() }
     }
 }
 
@@ -369,12 +356,7 @@ impl<'a> From<(&'a String, &'a String)> for Table<'a> {
 
 impl<'a> From<String> for Table<'a> {
     fn from(s: String) -> Self {
-        Table {
-            typ: TableType::Table(s.into()),
-            alias: None,
-            database: None,
-            index_definitions: Vec::new(),
-        }
+        Table { typ: TableType::Table(s.into()), alias: None, database: None, index_definitions: Vec::new() }
     }
 }
 
@@ -386,12 +368,7 @@ impl<'a> From<Vec<Row<'a>>> for Table<'a> {
 
 impl<'a> From<Values<'a>> for Table<'a> {
     fn from(values: Values<'a>) -> Self {
-        Self {
-            typ: TableType::Values(values),
-            alias: None,
-            database: None,
-            index_definitions: Vec::new(),
-        }
+        Self { typ: TableType::Values(values), alias: None, database: None, index_definitions: Vec::new() }
     }
 }
 
@@ -404,12 +381,7 @@ impl<'a> From<(String, String)> for Table<'a> {
 
 impl<'a> From<Select<'a>> for Table<'a> {
     fn from(select: Select<'a>) -> Self {
-        Table {
-            typ: TableType::Query(Box::new(select)),
-            alias: None,
-            database: None,
-            index_definitions: Vec::new(),
-        }
+        Table { typ: TableType::Query(Box::new(select)), alias: None, database: None, index_definitions: Vec::new() }
     }
 }
 

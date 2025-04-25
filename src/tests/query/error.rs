@@ -148,9 +148,7 @@ async fn null_constraint_violation(api: &mut dyn TestApi) -> crate::Result<()> {
 
 #[test_each_connector(tags("mysql"))]
 async fn int_unsigned_negative_value_out_of_range(api: &mut dyn TestApi) -> crate::Result<()> {
-    let table = api
-        .create_temp_table("id int4 auto_increment primary key, big int4 unsigned")
-        .await?;
+    let table = api.create_temp_table("id int4 auto_increment primary key, big int4 unsigned").await?;
 
     // Negative value
     {
@@ -173,9 +171,7 @@ async fn int_unsigned_negative_value_out_of_range(api: &mut dyn TestApi) -> crat
 
 #[test_each_connector(tags("mysql"))]
 async fn bigint_unsigned_positive_value_out_of_range(api: &mut dyn TestApi) -> crate::Result<()> {
-    let table = api
-        .create_temp_table("id int4 auto_increment primary key, big bigint unsigned")
-        .await?;
+    let table = api.create_temp_table("id int4 auto_increment primary key, big bigint unsigned").await?;
 
     let insert = format!(r#"INSERT INTO `{table}` (`big`) VALUES (18446744073709551615)"#);
     api.conn().execute_raw(&insert, &[]).await.unwrap();
@@ -206,9 +202,7 @@ async fn length_mismatch(api: &mut dyn TestApi) -> crate::Result<()> {
 async fn foreign_key_constraint_violation(api: &mut dyn TestApi) -> crate::Result<()> {
     let parent = api.create_temp_table("id smallint not null primary key").await?;
     let foreign_key = api.foreign_key(&parent, "id", "parent_id");
-    let child = api
-        .create_temp_table(&format!("parent_id smallint not null, {}", &foreign_key))
-        .await?;
+    let child = api.create_temp_table(&format!("parent_id smallint not null, {}", &foreign_key)).await?;
 
     let insert = Insert::single_into(&child).value("parent_id", 10);
     let result = api.conn().insert(insert.into()).await;
@@ -260,13 +254,9 @@ async fn ms_my_foreign_key_constraint_violation(api: &mut dyn TestApi) -> crate:
 #[cfg(feature = "chrono")]
 #[test_each_connector(tags("mysql"))]
 async fn garbage_datetime_values(api: &mut dyn TestApi) -> crate::Result<()> {
-    api.conn()
-        .raw_cmd("set @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO'")
-        .await?;
+    api.conn().raw_cmd("set @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO'").await?;
 
-    let table = api
-        .create_temp_table("data datetime not null default '0000-00-00 00:00:00'")
-        .await?;
+    let table = api.create_temp_table("data datetime not null default '0000-00-00 00:00:00'").await?;
 
     let insert = format!("INSERT INTO {table} () VALUES ()");
     api.conn().raw_cmd(&insert).await?;
@@ -327,27 +317,15 @@ async fn should_execute_multi_statement_queries_with_raw_cmd(api: &mut dyn TestA
 
     conn.raw_cmd(&query).await.unwrap();
 
-    let results = conn
-        .query(Select::from_table(table_name_1).column("id").into())
-        .await
-        .unwrap();
+    let results = conn.query(Select::from_table(table_name_1).column("id").into()).await.unwrap();
 
-    let results: Vec<i64> = results
-        .into_iter()
-        .map(|row| row.get("id").unwrap().as_integer().unwrap())
-        .collect();
+    let results: Vec<i64> = results.into_iter().map(|row| row.get("id").unwrap().as_integer().unwrap()).collect();
 
     assert_eq!(results, &[51]);
 
-    let results = conn
-        .query(Select::from_table(table_name_2).column("id").into())
-        .await
-        .unwrap();
+    let results = conn.query(Select::from_table(table_name_2).column("id").into()).await.unwrap();
 
-    let results: Vec<i64> = results
-        .into_iter()
-        .map(|row| row.get("id").unwrap().as_integer().unwrap())
-        .collect();
+    let results: Vec<i64> = results.into_iter().map(|row| row.get("id").unwrap().as_integer().unwrap()).collect();
 
     assert_eq!(results, &[52]);
 
@@ -374,19 +352,13 @@ async fn unsupported_column_type(api: &mut dyn TestApi) -> crate::Result<()> {
     let table = api.create_temp_table("point point, points point[]").await?;
     api.conn()
         .query_raw(
-            &format!(
-                r#"INSERT INTO {} ("point", "points") VALUES (Point(1,2), '{{"(1, 2)", "(2, 3)"}}')"#,
-                &table
-            ),
+            &format!(r#"INSERT INTO {} ("point", "points") VALUES (Point(1,2), '{{"(1, 2)", "(2, 3)"}}')"#, &table),
             &[],
         )
         .await?;
 
     // Scalar
-    let result = api
-        .conn()
-        .query(Select::from_table(&table).column("point").into())
-        .await;
+    let result = api.conn().query(Select::from_table(&table).column("point").into()).await;
     let err = result.unwrap_err();
     assert!(matches!(
         err.kind(),
@@ -394,10 +366,7 @@ async fn unsupported_column_type(api: &mut dyn TestApi) -> crate::Result<()> {
     ));
 
     // Scalar list
-    let result = api
-        .conn()
-        .query(Select::from_table(&table).column("points").into())
-        .await;
+    let result = api.conn().query(Select::from_table(&table).column("points").into()).await;
     let err = result.unwrap_err();
     assert!(matches!(
         err.kind(),
@@ -423,10 +392,7 @@ async fn array_into_scalar_should_fail(api: &mut dyn TestApi) -> crate::Result<(
 // SQLite errors on anything other than serializable.
 #[test_each_connector(tags("sqlite"))]
 async fn sqlite_isolation_error(api: &mut dyn TestApi) -> crate::Result<()> {
-    let res = api
-        .conn()
-        .start_transaction(Some(IsolationLevel::ReadUncommitted))
-        .await;
+    let res = api.conn().start_transaction(Some(IsolationLevel::ReadUncommitted)).await;
 
     let err = res.err().expect("SQLite must fail on isolation != SERIALIZABLE");
     assert_eq!(err.to_string(), "Invalid isolation level: READ UNCOMMITTED");
@@ -450,9 +416,7 @@ async fn concurrent_transaction_conflict(api: &mut dyn TestApi) -> crate::Result
     let table = api.get_name();
     let create_table = format!("CREATE TABLE {table} (id int not null primary key, count int)");
     api.conn().raw_cmd(&create_table).await?;
-    api.conn()
-        .insert(Insert::single_into(&table).value("id", 1).value("count", 1).into())
-        .await?;
+    api.conn().insert(Insert::single_into(&table).value("id", 1).value("count", 1).into()).await?;
 
     let conn1 = api.create_additional_connection().await?;
     let conn2 = api.create_additional_connection().await?;

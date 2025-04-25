@@ -41,11 +41,7 @@ impl<'a> From<Union<'a>> for Expression<'a> {
 
 impl<'a> Union<'a> {
     pub fn new(q: Select<'a>) -> Self {
-        Self {
-            selects: vec![q],
-            types: Vec::new(),
-            ctes: Vec::new(),
-        }
+        Self { selects: vec![q], types: Vec::new(), ctes: Vec::new() }
     }
 
     /// Creates a union with previous selection and the given `SELECT`

@@ -327,23 +327,14 @@ impl Builder {
             .test_on_check_out(self.test_on_check_out)
             .build(self.manager);
 
-        Sqlint {
-            inner,
-            connection_info,
-            pool_timeout: self.pool_timeout,
-        }
+        Sqlint { inner, connection_info, pool_timeout: self.pool_timeout }
     }
 
     fn log_start(info: &ConnectionInfo, connection_limit: usize) {
         let family = info.sql_family();
         let pg_bouncer = if info.pg_bouncer() { " in PgBouncer mode" } else { "" };
 
-        tracing::info!(
-            "Starting a {} pool with {} connections{}.",
-            family,
-            connection_limit,
-            pg_bouncer
-        );
+        tracing::info!("Starting a {} pool with {} connections{}.", family, connection_limit, pg_bouncer);
     }
 }
 
@@ -358,10 +349,7 @@ impl Sqlint {
             s if s.starts_with("file") => {
                 let params = crate::connector::SqliteParams::try_from(s)?;
 
-                let manager = SqlintManager::Sqlite {
-                    url: s.to_string(),
-                    db_name: params.db_name,
-                };
+                let manager = SqlintManager::Sqlite { url: s.to_string(), db_name: params.db_name };
 
                 let mut builder = Builder::new(s, manager)?;
 
@@ -490,7 +478,7 @@ impl Sqlint {
                 // We can use unwrap here because a pool timeout has to be set to use a connection pool
                 let timeout_duration = self.pool_timeout.unwrap();
                 return Err(
-                    Error::builder(ErrorKind::pool_timeout(state.max_open, state.in_use, timeout_duration)).build(),
+                    Error::builder(ErrorKind::pool_timeout(state.max_open, state.in_use, timeout_duration)).build()
                 );
             }
             Err(mobc::Error::Inner(e)) => return Err(e),

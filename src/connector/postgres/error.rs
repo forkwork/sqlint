@@ -12,9 +12,7 @@ impl From<tokio_postgres::error::Error> for Error {
             Some(code) if code == "22001" => {
                 let code = code.to_string();
 
-                let mut builder = Error::builder(ErrorKind::LengthMismatch {
-                    column: Name::Unavailable,
-                });
+                let mut builder = Error::builder(ErrorKind::LengthMismatch { column: Name::Unavailable });
 
                 builder.set_original_code(code);
 
@@ -119,11 +117,8 @@ impl From<tokio_postgres::error::Error> for Error {
                 let db_error = e.into_source().and_then(|e| e.downcast::<DbError>().ok());
                 let message = db_error.as_ref().map(|e| e.message());
 
-                let db_name = message
-                    .as_ref()
-                    .and_then(|s| s.split_whitespace().nth(1))
-                    .and_then(|s| s.split('"').nth(1))
-                    .into();
+                let db_name =
+                    message.as_ref().and_then(|s| s.split_whitespace().nth(1)).and_then(|s| s.split('"').nth(1)).into();
 
                 let kind = ErrorKind::DatabaseDoesNotExist { db_name };
                 let mut builder = Error::builder(kind);
@@ -141,11 +136,8 @@ impl From<tokio_postgres::error::Error> for Error {
                 let db_error = e.into_source().and_then(|e| e.downcast::<DbError>().ok());
                 let message = db_error.as_ref().map(|e| e.message());
 
-                let db_name = message
-                    .as_ref()
-                    .and_then(|m| m.split_whitespace().nth(5))
-                    .and_then(|s| s.split('"').nth(1))
-                    .into();
+                let db_name =
+                    message.as_ref().and_then(|m| m.split_whitespace().nth(5)).and_then(|s| s.split('"').nth(1)).into();
 
                 let kind = ErrorKind::DatabaseAccessDenied { db_name };
                 let mut builder = Error::builder(kind);
@@ -163,11 +155,8 @@ impl From<tokio_postgres::error::Error> for Error {
                 let db_error = e.into_source().and_then(|e| e.downcast::<DbError>().ok());
                 let message = db_error.as_ref().map(|e| e.message());
 
-                let user = message
-                    .as_ref()
-                    .and_then(|m| m.split_whitespace().last())
-                    .and_then(|s| s.split('"').nth(1))
-                    .into();
+                let user =
+                    message.as_ref().and_then(|m| m.split_whitespace().last()).and_then(|s| s.split('"').nth(1)).into();
 
                 let kind = ErrorKind::AuthenticationFailed { user };
                 let mut builder = Error::builder(kind);
@@ -199,11 +188,8 @@ impl From<tokio_postgres::error::Error> for Error {
                 let db_error = e.into_source().and_then(|e| e.downcast::<DbError>().ok());
                 let message = db_error.as_ref().map(|e| e.message());
 
-                let table = message
-                    .as_ref()
-                    .and_then(|m| m.split_whitespace().nth(1))
-                    .and_then(|s| s.split('"').nth(1))
-                    .into();
+                let table =
+                    message.as_ref().and_then(|m| m.split_whitespace().nth(1)).and_then(|s| s.split('"').nth(1)).into();
 
                 let kind = ErrorKind::TableDoesNotExist { table };
                 let mut builder = Error::builder(kind);
@@ -249,11 +235,8 @@ impl From<tokio_postgres::error::Error> for Error {
                 let db_error = e.into_source().and_then(|e| e.downcast::<DbError>().ok());
                 let message = db_error.as_ref().map(|e| e.message());
 
-                let db_name = message
-                    .as_ref()
-                    .and_then(|m| m.split_whitespace().nth(1))
-                    .and_then(|s| s.split('"').nth(1))
-                    .into();
+                let db_name =
+                    message.as_ref().and_then(|m| m.split_whitespace().nth(1)).and_then(|s| s.split('"').nth(1)).into();
 
                 let kind = ErrorKind::DatabaseAlreadyExists { db_name };
                 let mut builder = Error::builder(kind);
@@ -298,9 +281,7 @@ impl From<tokio_postgres::error::Error> for Error {
                     } // sigh...
                     // https://github.com/sfackler/rust-postgres/blob/0c84ed9f8201f4e5b4803199a24afa2c9f3723b2/tokio-postgres/src/connect_tls.rs#L37
                     "error performing TLS handshake: server does not support TLS" => {
-                        let mut builder = Error::builder(ErrorKind::TlsError {
-                            message: reason.clone(),
-                        });
+                        let mut builder = Error::builder(ErrorKind::TlsError { message: reason.clone() });
 
                         if let Some(code) = code {
                             builder.set_original_code(code);
@@ -339,9 +320,7 @@ fn try_extracting_uuid_error(err: &tokio_postgres::error::Error) -> Option<Error
 fn try_extracting_tls_error(err: &tokio_postgres::error::Error) -> Option<Error> {
     use std::error::Error;
 
-    err.source()
-        .and_then(|err| err.downcast_ref::<native_tls::Error>())
-        .map(|err| err.into())
+    err.source().and_then(|err| err.downcast_ref::<native_tls::Error>()).map(|err| err.into())
 }
 
 fn try_extracting_io_error(err: &tokio_postgres::error::Error) -> Option<Error> {
@@ -361,9 +340,7 @@ impl From<native_tls::Error> for Error {
 
 impl From<&native_tls::Error> for Error {
     fn from(e: &native_tls::Error) -> Error {
-        let kind = ErrorKind::TlsError {
-            message: format!("{e}"),
-        };
+        let kind = ErrorKind::TlsError { message: format!("{e}") };
 
         Error::builder(kind).build()
     }

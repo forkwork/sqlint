@@ -15,10 +15,7 @@ use crate::ast::Expression;
 /// ```
 #[cfg(feature = "mysql")]
 pub fn uuid_to_bin() -> Expression<'static> {
-    let func = Function {
-        typ_: FunctionType::UuidToBin,
-        alias: None,
-    };
+    let func = Function { typ_: FunctionType::UuidToBin, alias: None };
 
     func.into()
 }
@@ -36,10 +33,7 @@ pub fn uuid_to_bin() -> Expression<'static> {
 /// # }
 /// ```
 pub fn uuid_to_bin_swapped() -> Expression<'static> {
-    let func = Function {
-        typ_: FunctionType::UuidToBinSwapped,
-        alias: None,
-    };
+    let func = Function { typ_: FunctionType::UuidToBinSwapped, alias: None };
 
     func.into()
 }
@@ -58,10 +52,7 @@ pub fn uuid_to_bin_swapped() -> Expression<'static> {
 /// ```
 #[cfg(any(feature = "mysql"))]
 pub fn native_uuid() -> Expression<'static> {
-    let func = Function {
-        typ_: FunctionType::Uuid,
-        alias: None,
-    };
+    let func = Function { typ_: FunctionType::Uuid, alias: None };
 
     func.into()
 }

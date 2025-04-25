@@ -194,10 +194,7 @@ impl<'de> Deserializer<'de> for ValueDeserializer<'de> {
                 Cow::Owned(bytes) => visitor.visit_byte_buf(bytes),
             }
         } else {
-            Err(DeserializeError::invalid_type(
-                Unexpected::Other(&format!("{:?}", self.0)),
-                &visitor,
-            ))
+            Err(DeserializeError::invalid_type(Unexpected::Other(&format!("{:?}", self.0)), &visitor))
         }
     }
 
@@ -218,10 +215,7 @@ pub fn make_row(cols: Vec<(&'static str, Value<'static>)>) -> ResultRow {
         values.push(value);
     }
 
-    ResultRow {
-        values,
-        columns: std::sync::Arc::new(columns),
-    }
+    ResultRow { values, columns: std::sync::Arc::new(columns) }
 }
 
 #[cfg(test)]
@@ -249,30 +243,17 @@ mod tests {
         let row = make_row(vec![("id", Value::integer(12)), ("name", "Georgina".into())]);
         let user: User = from_row(row).unwrap();
 
-        assert_eq!(
-            user,
-            User {
-                id: 12,
-                name: "Georgina".to_owned(),
-                bio: None,
-            }
-        )
+        assert_eq!(user, User { id: 12, name: "Georgina".to_owned(), bio: None })
     }
 
     #[test]
     fn from_rows_works() {
-        let first_row = make_row(vec![
-            ("id", Value::integer(12)),
-            ("name", "Georgina".into()),
-            ("bio", Value::Text(None)),
-        ]);
+        let first_row =
+            make_row(vec![("id", Value::integer(12)), ("name", "Georgina".into()), ("bio", Value::Text(None))]);
         let second_row = make_row(vec![
             ("id", 33.into()),
             ("name", "Philbert".into()),
-            (
-                "bio",
-                "Invented sliced bread on a meditation retreat in the Himalayas.".into(),
-            ),
+            ("bio", "Invented sliced bread on a meditation retreat in the Himalayas.".into()),
         ]);
 
         let result_set = ResultSet {
@@ -286,11 +267,7 @@ mod tests {
         assert_eq!(
             users,
             &[
-                User {
-                    id: 12,
-                    name: "Georgina".to_owned(),
-                    bio: None,
-                },
+                User { id: 12, name: "Georgina".to_owned(), bio: None },
                 User {
                     id: 33,
                     name: "Philbert".to_owned(),
@@ -318,11 +295,7 @@ mod tests {
         let expected_cat = Cat {
             age: 18.800001,
             birthday: "2019-08-01T20:00:00Z".parse().unwrap(),
-            human: User {
-                name: "Georgina".into(),
-                id: 19,
-                bio: None,
-            },
+            human: User { name: "Georgina".into(), id: 19, bio: None },
         };
 
         assert_eq!(cat, expected_cat);

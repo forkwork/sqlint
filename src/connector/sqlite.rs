@@ -72,23 +72,20 @@ impl TryFrom<&str> for SqliteParams {
                 for (k, v) in params {
                     match k {
                         "connection_limit" => {
-                            let as_int: usize = v
-                                .parse()
-                                .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                            let as_int: usize =
+                                v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                             connection_limit = Some(as_int);
                         }
                         "socket_timeout" => {
-                            let as_int = v
-                                .parse()
-                                .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                            let as_int =
+                                v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                             socket_timeout = Some(Duration::from_secs(as_int));
                         }
                         "max_connection_lifetime" => {
-                            let as_int = v
-                                .parse()
-                                .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                            let as_int =
+                                v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                             if as_int == 0 {
                                 max_connection_lifetime = None;
@@ -97,9 +94,8 @@ impl TryFrom<&str> for SqliteParams {
                             }
                         }
                         "max_idle_connection_lifetime" => {
-                            let as_int = v
-                                .parse()
-                                .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                            let as_int =
+                                v.parse().map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
 
                             if as_int == 0 {
                                 max_idle_connection_lifetime = None;
@@ -154,9 +150,7 @@ impl Sqlite {
     pub fn new_in_memory() -> crate::Result<Sqlite> {
         let client = rusqlite::Connection::open_in_memory()?;
 
-        Ok(Sqlite {
-            client: Mutex::new(client),
-        })
+        Ok(Sqlite { client: Mutex::new(client) })
     }
 
     /// The underlying rusqlite::Connection. Only available with the `expose-drivers` Cargo
@@ -303,9 +297,7 @@ mod tests {
     async fn in_memory_sqlite_works() {
         let conn = Sqlite::new_in_memory().unwrap();
 
-        conn.raw_cmd("CREATE TABLE test (id INTEGER PRIMARY KEY, txt TEXT NOT NULL);")
-            .await
-            .unwrap();
+        conn.raw_cmd("CREATE TABLE test (id INTEGER PRIMARY KEY, txt TEXT NOT NULL);").await.unwrap();
 
         let insert = Insert::single_into("test").value("txt", "henlo");
         conn.insert(insert.into()).await.unwrap();
@@ -328,9 +320,7 @@ mod tests {
     async fn quoting_in_returning_in_sqlite_works() {
         let conn = Sqlite::new_in_memory().unwrap();
 
-        conn.raw_cmd("CREATE TABLE test (id  INTEGER PRIMARY KEY, `txt space` TEXT NOT NULL);")
-            .await
-            .unwrap();
+        conn.raw_cmd("CREATE TABLE test (id  INTEGER PRIMARY KEY, `txt space` TEXT NOT NULL);").await.unwrap();
 
         let insert = Insert::single_into("test").value("txt space", "henlo");
         conn.insert(insert.into()).await.unwrap();

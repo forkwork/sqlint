@@ -20,12 +20,7 @@ impl<'a> Merge<'a> {
         T: Into<Table<'a>>,
         U: Into<Using<'a>>,
     {
-        Self {
-            table: table.into(),
-            using: using.into(),
-            when_not_matched: None,
-            returning: None,
-        }
+        Self { table: table.into(), using: using.into(), when_not_matched: None, returning: None }
     }
 
     pub(crate) fn when_not_matched<Q>(mut self, query: Q) -> Self
@@ -108,9 +103,8 @@ impl<'a> TryFrom<Insert<'a>> for Merge<'a> {
             ExpressionKind::Row(row) => {
                 let cols_vals = columns.iter().zip(row.values.into_iter());
 
-                let select = cols_vals.fold(Select::default(), |query, (col, val)| {
-                    query.value(val.alias(col.name.clone()))
-                });
+                let select =
+                    cols_vals.fold(Select::default(), |query, (col, val)| query.value(val.alias(col.name.clone())));
 
                 Query::from(select)
             }
@@ -119,16 +113,14 @@ impl<'a> TryFrom<Insert<'a>> for Merge<'a> {
                 let row = rows.pop().unwrap();
                 let cols_vals = columns.iter().zip(row.values.into_iter());
 
-                let select = cols_vals.fold(Select::default(), |query, (col, val)| {
-                    query.value(val.alias(col.name.clone()))
-                });
+                let select =
+                    cols_vals.fold(Select::default(), |query, (col, val)| query.value(val.alias(col.name.clone())));
 
                 let union = rows.into_iter().fold(Union::new(select), |union, row| {
                     let cols_vals = columns.iter().zip(row.values.into_iter());
 
-                    let select = cols_vals.fold(Select::default(), |query, (col, val)| {
-                        query.value(val.alias(col.name.clone()))
-                    });
+                    let select =
+                        cols_vals.fold(Select::default(), |query, (col, val)| query.value(val.alias(col.name.clone())));
 
                     union.all(select)
                 });
@@ -144,9 +136,7 @@ impl<'a> TryFrom<Insert<'a>> for Merge<'a> {
 
         let bare_columns: Vec<_> = columns.clone().into_iter().map(|c| c.into_bare()).collect();
 
-        let using = query
-            .into_using("dual", bare_columns.clone())
-            .on(table.join_conditions(&columns).unwrap());
+        let using = query.into_using("dual", bare_columns.clone()).on(table.join_conditions(&columns).unwrap());
 
         let dual_columns: Vec<_> = columns.into_iter().map(|c| c.table("dual")).collect();
         let not_matched = Insert::multi(bare_columns).values(dual_columns);

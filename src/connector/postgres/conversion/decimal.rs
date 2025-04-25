@@ -29,9 +29,7 @@ struct PostgresDecimal<D> {
 }
 
 fn from_postgres<D: ExactSizeIterator<Item = u16>>(dec: PostgresDecimal<D>) -> Result<BigDecimal, InvalidDecimal> {
-    let PostgresDecimal {
-        neg, digits, weight, ..
-    } = dec;
+    let PostgresDecimal { neg, digits, weight, .. } = dec;
 
     if digits.len() == 0 {
         return Ok(0u64.into());
@@ -61,12 +59,7 @@ fn from_postgres<D: ExactSizeIterator<Item = u16>>(dec: PostgresDecimal<D>) -> R
 
 fn to_postgres(decimal: &BigDecimal) -> crate::Result<PostgresDecimal<Vec<i16>>> {
     if decimal.is_zero() {
-        return Ok(PostgresDecimal {
-            neg: false,
-            weight: 0,
-            scale: 0,
-            digits: vec![],
-        });
+        return Ok(PostgresDecimal { neg: false, weight: 0, scale: 0, digits: vec![] });
     }
 
     let base_10_to_10000 = |chunk: &[u8]| chunk.iter().fold(0i16, |a, &d| a * 10 + d as i16);
@@ -96,11 +89,7 @@ fn to_postgres(decimal: &BigDecimal) -> crate::Result<PostgresDecimal<Vec<i16>>>
     }
     .try_into()?;
 
-    let digits_len = if base_10.len() % 4 != 0 {
-        base_10.len() / 4 + 1
-    } else {
-        base_10.len() / 4
-    };
+    let digits_len = if base_10.len() % 4 != 0 { base_10.len() / 4 + 1 } else { base_10.len() / 4 };
 
     let offset = weight_10.rem_euclid(4) as usize;
 
@@ -118,10 +107,7 @@ fn to_postgres(decimal: &BigDecimal) -> crate::Result<PostgresDecimal<Vec<i16>>>
 
     // Convert to base 10000
     if let Some(rest) = base_10.get(offset..) {
-        digits.extend(
-            rest.chunks(4)
-                .map(|chunk| base_10_to_10000(chunk) * 10i16.pow(4 - chunk.len() as u32)),
-        );
+        digits.extend(rest.chunks(4).map(|chunk| base_10_to_10000(chunk) * 10i16.pow(4 - chunk.len() as u32)));
     }
 
     // Remove non-significant zeroes.
@@ -134,12 +120,7 @@ fn to_postgres(decimal: &BigDecimal) -> crate::Result<PostgresDecimal<Vec<i16>>>
         Sign::Minus => true,
     };
 
-    Ok(PostgresDecimal {
-        neg,
-        weight,
-        scale,
-        digits,
-    })
+    Ok(PostgresDecimal { neg, weight, scale, digits })
 }
 
 impl<'a> FromSql<'a> for DecimalWrapper {
@@ -212,13 +193,8 @@ impl<'a> FromSql<'a> for DecimalWrapper {
             groups.push(raw.read_u16::<BigEndian>()?);
         }
 
-        let dec = from_postgres(PostgresDecimal {
-            neg: sign == 0x4000,
-            weight,
-            scale,
-            digits: groups.into_iter(),
-        })
-        .map_err(Box::new)?;
+        let dec = from_postgres(PostgresDecimal { neg: sign == 0x4000, weight, scale, digits: groups.into_iter() })
+            .map_err(Box::new)?;
 
         Ok(DecimalWrapper(dec))
     }
@@ -230,12 +206,7 @@ impl<'a> FromSql<'a> for DecimalWrapper {
 
 impl ToSql for DecimalWrapper {
     fn to_sql(&self, _: &Type, out: &mut BytesMut) -> Result<IsNull, Box<dyn error::Error + 'static + Sync + Send>> {
-        let PostgresDecimal {
-            neg,
-            weight,
-            scale,
-            digits,
-        } = to_postgres(&self.0)?;
+        let PostgresDecimal { neg, weight, scale, digits } = to_postgres(&self.0)?;
 
         let num_digits = digits.len();
 

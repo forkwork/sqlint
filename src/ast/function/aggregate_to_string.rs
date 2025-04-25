@@ -25,9 +25,7 @@ pub fn aggregate_to_string<'a, T>(expr: T) -> Function<'a>
 where
     T: Into<Expression<'a>>,
 {
-    let fun = AggregateToString {
-        value: Box::new(expr.into()),
-    };
+    let fun = AggregateToString { value: Box::new(expr.into()) };
 
     fun.into()
 }

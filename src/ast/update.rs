@@ -23,13 +23,7 @@ impl<'a> Update<'a> {
     where
         T: Into<Table<'a>>,
     {
-        Self {
-            table: table.into(),
-            columns: Vec::new(),
-            values: Vec::new(),
-            conditions: None,
-            comment: None,
-        }
+        Self { table: table.into(), columns: Vec::new(), values: Vec::new(), conditions: None, comment: None }
     }
 
     /// Add another column value assignment to the query

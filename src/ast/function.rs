@@ -143,16 +143,4 @@ function!(TextSearch);
 #[cfg(any(feature = "postgresql", feature = "mysql"))]
 function!(TextSearchRelevance);
 
-function!(
-    RowNumber,
-    Count,
-    AggregateToString,
-    Average,
-    Sum,
-    Lower,
-    Upper,
-    Minimum,
-    Maximum,
-    Coalesce,
-    Concat
-);
+function!(RowNumber, Count, AggregateToString, Average, Sum, Lower, Upper, Minimum, Maximum, Coalesce, Concat);

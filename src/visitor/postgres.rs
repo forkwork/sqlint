@@ -23,10 +23,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
     where
         Q: Into<Query<'a>>,
     {
-        let mut postgres = Postgres {
-            query: String::with_capacity(4096),
-            parameters: Vec::with_capacity(128),
-        };
+        let mut postgres = Postgres { query: String::with_capacity(4096), parameters: Vec::with_capacity(128) };
 
         Postgres::visit_query(&mut postgres, query.into())?;
 
@@ -134,10 +131,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         }
 
         match insert.values {
-            Expression {
-                kind: ExpressionKind::Row(row),
-                ..
-            } => {
+            Expression { kind: ExpressionKind::Row(row), .. } => {
                 if row.values.is_empty() {
                     self.write(" DEFAULT VALUES")?;
                 } else {
@@ -157,10 +151,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
                     self.visit_row(row)?;
                 }
             }
-            Expression {
-                kind: ExpressionKind::Values(values),
-                ..
-            } => {
+            Expression { kind: ExpressionKind::Values(values), .. } => {
                 let columns = insert.columns.len();
 
                 self.write(" (")?;
@@ -565,10 +556,7 @@ mod tests {
     #[test]
     #[cfg(feature = "postgresql")]
     fn test_returning_insert() {
-        let expected = expected_values(
-            "INSERT INTO \"users\" (\"foo\") VALUES ($1) RETURNING \"foo\"",
-            vec![10],
-        );
+        let expected = expected_values("INSERT INTO \"users\" (\"foo\") VALUES ($1) RETURNING \"foo\"", vec![10]);
         let query = Insert::single_into("users").value("foo", 10);
         let (sql, params) = Postgres::build(Insert::from(query).returning(vec!["foo"])).unwrap();
 
@@ -599,9 +587,7 @@ mod tests {
     #[test]
     fn test_multi_row_insert() {
         let expected = expected_values("INSERT INTO \"users\" (\"foo\") VALUES ($1), ($2)", vec![10, 11]);
-        let query = Insert::multi_into("users", vec!["foo"])
-            .values(vec![10])
-            .values(vec![11]);
+        let query = Insert::multi_into("users", vec!["foo"]).values(vec![10]).values(vec![11]);
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -610,10 +596,7 @@ mod tests {
 
     #[test]
     fn test_limit_and_offset_when_both_are_set() {
-        let expected = expected_values(
-            "SELECT \"users\".* FROM \"users\" LIMIT $1 OFFSET $2",
-            vec![10_i64, 2_i64],
-        );
+        let expected = expected_values("SELECT \"users\".* FROM \"users\" LIMIT $1 OFFSET $2", vec![10_i64, 2_i64]);
         let query = Select::from_table("users").limit(10).offset(2);
         let (sql, params) = Postgres::build(query).unwrap();
 
@@ -939,10 +922,7 @@ mod tests {
 
     #[test]
     fn test_like_cast_to_string() {
-        let expected = expected_values(
-            r#"SELECT "test".* FROM "test" WHERE "jsonField"::text LIKE $1"#,
-            vec!["%foo%"],
-        );
+        let expected = expected_values(r#"SELECT "test".* FROM "test" WHERE "jsonField"::text LIKE $1"#, vec!["%foo%"]);
 
         let query = Select::from_table("test").so_that(Column::from("jsonField").like("%foo%"));
         let (sql, params) = Postgres::build(query).unwrap();
@@ -953,10 +933,8 @@ mod tests {
 
     #[test]
     fn test_not_like_cast_to_string() {
-        let expected = expected_values(
-            r#"SELECT "test".* FROM "test" WHERE "jsonField"::text NOT LIKE $1"#,
-            vec!["%foo%"],
-        );
+        let expected =
+            expected_values(r#"SELECT "test".* FROM "test" WHERE "jsonField"::text NOT LIKE $1"#, vec!["%foo%"]);
 
         let query = Select::from_table("test").so_that(Column::from("jsonField").not_like("%foo%"));
         let (sql, params) = Postgres::build(query).unwrap();
@@ -967,10 +945,7 @@ mod tests {
 
     #[test]
     fn test_begins_with_cast_to_string() {
-        let expected = expected_values(
-            r#"SELECT "test".* FROM "test" WHERE "jsonField"::text LIKE $1"#,
-            vec!["%foo"],
-        );
+        let expected = expected_values(r#"SELECT "test".* FROM "test" WHERE "jsonField"::text LIKE $1"#, vec!["%foo"]);
 
         let query = Select::from_table("test").so_that(Column::from("jsonField").like("%foo"));
         let (sql, params) = Postgres::build(query).unwrap();
@@ -981,10 +956,8 @@ mod tests {
 
     #[test]
     fn test_not_begins_with_cast_to_string() {
-        let expected = expected_values(
-            r#"SELECT "test".* FROM "test" WHERE "jsonField"::text NOT LIKE $1"#,
-            vec!["%foo"],
-        );
+        let expected =
+            expected_values(r#"SELECT "test".* FROM "test" WHERE "jsonField"::text NOT LIKE $1"#, vec!["%foo"]);
 
         let query = Select::from_table("test").so_that(Column::from("jsonField").not_like("%foo"));
         let (sql, params) = Postgres::build(query).unwrap();
@@ -995,10 +968,7 @@ mod tests {
 
     #[test]
     fn test_ends_with_cast_to_string() {
-        let expected = expected_values(
-            r#"SELECT "test".* FROM "test" WHERE "jsonField"::text LIKE $1"#,
-            vec!["foo%"],
-        );
+        let expected = expected_values(r#"SELECT "test".* FROM "test" WHERE "jsonField"::text LIKE $1"#, vec!["foo%"]);
 
         let query = Select::from_table("test").so_that(Column::from("jsonField").like("foo%"));
         let (sql, params) = Postgres::build(query).unwrap();
@@ -1009,10 +979,8 @@ mod tests {
 
     #[test]
     fn test_not_ends_with_cast_to_string() {
-        let expected = expected_values(
-            r#"SELECT "test".* FROM "test" WHERE "jsonField"::text NOT LIKE $1"#,
-            vec!["foo%"],
-        );
+        let expected =
+            expected_values(r#"SELECT "test".* FROM "test" WHERE "jsonField"::text NOT LIKE $1"#, vec!["foo%"]);
 
         let query = Select::from_table("test").so_that(Column::from("jsonField").not_like("foo%"));
         let (sql, params) = Postgres::build(query).unwrap();
@@ -1023,9 +991,7 @@ mod tests {
 
     #[test]
     fn test_default_insert() {
-        let insert = Insert::single_into("foo")
-            .value("foo", "bar")
-            .value("baz", default_value());
+        let insert = Insert::single_into("foo").value("foo", "bar").value("baz", default_value());
 
         let (sql, _) = Postgres::build(insert).unwrap();
 
@@ -1034,11 +1000,8 @@ mod tests {
 
     #[test]
     fn join_is_inserted_positionally() {
-        let joined_table = Table::from("User").left_join(
-            "Post"
-                .alias("p")
-                .on(("p", "userId").equals(Column::from(("User", "id")))),
-        );
+        let joined_table =
+            Table::from("User").left_join("Post".alias("p").on(("p", "userId").equals(Column::from(("User", "id")))));
         let q = Select::from_table(joined_table).and_from("Toto");
         let (sql, _) = Postgres::build(q).unwrap();
 
