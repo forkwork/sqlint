@@ -36,11 +36,6 @@ all = [
   "uuid",
   "bigdecimal",
 ]
-
-vendored-openssl = [
-  "postgres-native-tls/vendored-openssl",
-]
-
 postgresql = [
   "native-tls",
   "tokio-postgres",
