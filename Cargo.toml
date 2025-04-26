@@ -11,7 +11,7 @@ license = "Apache-2.0"
 name = "sqlint"
 readme = "README.md"
 repository = "https://github.com/khulnasoft/sqlint/"
-version = "0.2.1"
+version = "0.2.2"
 resolver = "2"
 
 [package.metadata.docs.rs]
@@ -39,7 +39,6 @@ all = [
 
 vendored-openssl = [
   "postgres-native-tls/vendored-openssl",
-  "mysql_async/vendored-openssl",
 ]
 
 postgresql = [
@@ -105,10 +104,8 @@ optional = true
 version = ">1.4.0"
 
 [dependencies.mysql_async]
-git = "https://github.com/khulnasoft-lab/mysql_async"
 optional = true
-version = "0.31.3"
-branch = "vendored-openssl"
+version = "^0.31.3"
 
 [dependencies.rusqlite]
 version = "0.25"

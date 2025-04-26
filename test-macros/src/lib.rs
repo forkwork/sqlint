@@ -22,11 +22,8 @@ fn function_returns_result(func: &ItemFn) -> bool {
 /// *before* macro expansion as tests. This way we can add it manually, and the
 /// test macro will strip it.
 fn strip_test_attribute(function: &mut ItemFn) {
-    let new_attrs = function
-        .attrs
-        .drain(..)
-        .filter(|attr| attr.path.segments.iter().last().unwrap().ident != "test")
-        .collect();
+    let new_attrs =
+        function.attrs.drain(..).filter(|attr| attr.path.segments.iter().last().unwrap().ident != "test").collect();
 
     function.attrs = new_attrs;
 }

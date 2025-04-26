@@ -4,11 +4,7 @@ pub use once_cell::sync::Lazy;
 pub use tags::*;
 
 pub fn run_with_tokio<O, F: std::future::Future<Output = O>>(fut: F) -> O {
-    tokio::runtime::Builder::new_multi_thread()
-        .enable_all()
-        .build()
-        .unwrap()
-        .block_on(fut)
+    tokio::runtime::Builder::new_multi_thread().enable_all().build().unwrap().block_on(fut)
 }
 
 fn connector_names() -> Vec<(&'static str, &'static str, Tags)> {

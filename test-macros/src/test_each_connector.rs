@@ -105,11 +105,7 @@ fn test_each_connector_async_wrapper_functions(
     let test_fn_name = &test_function.sig.ident;
     let mut tests = Vec::with_capacity(CONNECTORS.len());
 
-    let optional_unwrap = if super::function_returns_result(&test_function) {
-        Some(quote!(.unwrap()))
-    } else {
-        None
-    };
+    let optional_unwrap = if super::function_returns_result(&test_function) { Some(quote!(.unwrap())) } else { None };
 
     for connector in args.connectors_to_test() {
         let connector_name = connector.name();
